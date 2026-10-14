@@ -8,7 +8,7 @@ import { ChatInput } from '@/components/chat-input';
 import { VideoInput } from '@/components/video-input';
 import { Trash2 } from 'lucide-react';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000';
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000').replace(/\/+$/, '');
 
 interface Message {
   id: string;
