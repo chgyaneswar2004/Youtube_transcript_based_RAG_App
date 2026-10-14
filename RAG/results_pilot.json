@@ -1,0 +1,684 @@
+{
+  "evaluation": {
+    "created_at_utc": "2026-10-14T08:53:04.027075+00:00",
+    "test_set": "youtube_test_videos.md",
+    "model": "models/gemini-2.5-flash",
+    "embedding_model": "models/gemini-embedding-001",
+    "temperature": 0.2,
+    "chunk_sizes_characters": [
+      1000,
+      10000
+    ],
+    "chunk_overlap_characters": {
+      "1000": 200,
+      "10000": 1000
+    },
+    "prompt": "You are a careful assistant answering questions about a YouTube video.\nUse only the transcript excerpts below as evidence. Do not add outside facts or guess.\nAnswer the question directly and include the relevant details present in the excerpts.\nIf the excerpts do not contain enough evidence, say what cannot be determined from the transcript.\n\nTranscript excerpts:\n{context}\n\nQuestion: {question}\nAnswer:",
+    "judge": "Gemini pairwise rubric; judge temperature 0",
+    "rubric": "Faithfulness, coverage, directness (0-4 each); winner selected from transcript excerpts.",
+    "caveat": "Model-based preference is a comparative estimate, not human ground truth.",
+    "updated_at_utc": "2026-10-14T08:59:13.899153+00:00",
+    "status": "incomplete_quota_limited_pilot",
+    "blocked_reason": "Gemini daily free-tier request quota exhausted before all answers and judgments completed.",
+    "blocked_date_utc": "2026-10-14",
+    "methodology_note": "This pilot used 200-character overlap for 1,000-character chunks and 1,000-character overlap for 10,000-character chunks. Because overlap differed, this is not a controlled chunk-size-only comparison. The evaluation.py runner has since been updated to use a fixed 200-character overlap for both sizes; use --fresh to discard this pilot and run that controlled configuration when quota is available.",
+    "completed_comparisons": 7,
+    "incomplete_questions": 43,
+    "preliminary_interpretation": "1,000-character chunks won 3 of 7 completed comparisons, 10,000-character chunks won 2, and 2 tied. This is inconclusive and confounded by different overlap settings."
+  },
+  "summary": {
+    "answered_questions": 7,
+    "failed_questions": 43,
+    "wins": {
+      "1000": 3,
+      "10000": 2,
+      "tie": 2,
+      "unrated": 0
+    },
+    "pending_or_quota_failed_questions": 43
+  },
+  "videos": [
+    {
+      "title": "What is Retrieval-Augmented Generation (RAG)? (IBM Technology)",
+      "video_id": "T-D1OfcDW1M",
+      "transcript_characters": 5925,
+      "variants": {
+        "1000": {
+          "chunk_count": 8,
+          "chunk_size_characters": 1000,
+          "chunk_overlap_characters": 200
+        },
+        "10000": {
+          "chunk_count": 1,
+          "chunk_size_characters": 10000,
+          "chunk_overlap_characters": 1000
+        }
+      },
+      "questions": [
+        {
+          "question": "What problems with LLMs does RAG address?",
+          "answers": {
+            "1000": {
+              "answer": "Retrieval-Augmented Generation (RAG) is a framework designed to help large language models (LLMs) be more accurate and more up to date.\n\nSpecifically, RAG addresses two challenges:\n1.  **Out of date information**: Instead of retraining the LLM when new information becomes available (e.g., new moons are discovered for a planet), RAG allows for augmenting a data store with new or updated information. The LLM can then retrieve the most up-to-date information when a user asks a question.\n2.  **Source/Evidence**: RAG helps with the \"source\" problem by enabling the LLM to give evidence for why its response was what it was.",
+              "source_chunks": [
+                "\"No, no, no.\" \"First, go and retrieve relevant content.\" \"Combine that with the user's question and only then generate the answer.\" So the prompt now has three parts: the instruction to pay attention to, the retrieved content, together with the user's question. Now give a response. And in fact, now you can give evidence for why your response was what it was.   So now hopefully you can see, how does RAG help the two LLM challenges that I had mentioned before?   So first of all, I'll start with the out of date part. Now, instead of having to retrain your model, if new information comes up, like, hey, we found some more moons-- now to Jupiter again, maybe it'll be Saturn again in the future. All you have to do is you augment your data store with new information, update information. So now the next time that a user comes and asks the question, we're ready. We just go ahead and retrieve the most up to date information. The second problem, source. Well, the large language model is now being",
+                "a negative effect as well though, because if the retriever is not sufficiently good to give the large language model the best, most high-quality grounding information, then maybe the user's query that is answerable doesn't get an answer. So this is actually why lots of folks, including many of us here at IBM, are working the problem on both sides. We are both working to improve the retriever to give the large language model the best quality data on which to ground its response, and also the generative part so that the LLM can give the richest, best response finally to the user when it generates the answer. Thank you for learning more about RAG and like and subscribe to the channel. Thank you.",
+                "Large language models. They are everywhere. They get some things amazingly right and other things very interestingly wrong. My name is Marina Danilevsky. I am a Senior Research Scientist here at IBM Research. And I want to tell you about a framework to help large language models be more accurate and more up to date: Retrieval-Augmented Generation, or RAG. Let's just talk about the \"Generation\" part for a minute. So forget the \"Retrieval-Augmented\". So the generation, this refers to large language models, or LLMs, that generate text in response to a user query, referred to as a prompt. These models can have some undesirable behavior. I want to tell you an anecdote to illustrate this. So my kids, they recently asked me this question: \"In our solar system, what planet has the most moons?\" And my response was, “Oh, that's really great that you're asking this question. I loved space when I was your age.” Of course, that was like 30 years ago. But I know this! I read an article and the",
+                "are adding a content store. This could be open like the internet. This can be closed like some collection of documents, collection of policies, whatever. The point, though, now is that the LLM first goes and talks to the content store and says, “Hey, can you retrieve for me information that is relevant to what the user's query was?” And now, with this retrieval-augmented answer, it's not Jupiter anymore. We know that it is Saturn. What does this look like? Well, first user prompts the LLM with their question. They say, this is what my question was. And originally, if we're just talking to a generative model, the generative model says, “Oh, okay, I know the response. Here it is. Here's my response.”   But now in the RAG framework, the generative model actually has an instruction that says, \"No, no, no.\" \"First, go and retrieve relevant content.\" \"Combine that with the user's question and only then generate the answer.\" So the prompt now has three parts: the instruction to pay attention"
+              ],
+              "latency_seconds": 6.699
+            },
+            "10000": {
+              "answer": "Retrieval-Augmented Generation (RAG) addresses two main problems with large language models (LLMs):\n\n1.  **Out-of-date information:** RAG allows LLMs to access and retrieve the most up-to-date information from an augmented data store, rather than relying solely on potentially outdated knowledge from their training data. This means that if new information becomes available, the data store can be updated without needing to retrain the entire model.\n2.  **Lack of source/hallucination:** RAG instructs the LLM to pay attention to primary source data before generating a response. This enables the model to provide evidence for its answers, making it less likely to hallucinate or make up information. It also reduces the likelihood of the model relying only on information learned during training and can help it \"know when to say, 'I don't know'\" if an answer cannot be reliably found in the data store.",
+              "source_chunks": [
+                "Large language models. They are everywhere. They get some things amazingly right and other things very interestingly wrong. My name is Marina Danilevsky. I am a Senior Research Scientist here at IBM Research. And I want to tell you about a framework to help large language models be more accurate and more up to date: Retrieval-Augmented Generation, or RAG. Let's just talk about the \"Generation\" part for a minute. So forget the \"Retrieval-Augmented\". So the generation, this refers to large language models, or LLMs, that generate text in response to a user query, referred to as a prompt. These models can have some undesirable behavior. I want to tell you an anecdote to illustrate this. So my kids, they recently asked me this question: \"In our solar system, what planet has the most moons?\" And my response was, “Oh, that's really great that you're asking this question. I loved space when I was your age.” Of course, that was like 30 years ago. But I know this! I read an article and the article said that it was Jupiter and 88 moons. So that's the answer. Now, actually, there's a couple of things wrong with my answer. First of all, I have no source to support what I'm saying. So even though I confidently said “I read an article, I know the answer!”, I'm not sourcing it. I'm giving the answer off the top of my head. And also, I actually haven't kept up with this for awhile, and my answer is out of date. So we have two problems here. One is no source. And the second problem is that I am out of date.   And these, in fact, are two behaviors that are often observed as problematic when interacting with large language models. They’re LLM challenges. Now, what would have happened if I'd taken a beat and first gone and looked up the answer on a reputable source like NASA? Well, then I would have been able to say, “Ah, okay! So the answer is Saturn with 146 moons.” And in fact, this keeps changing because scientists keep on discovering more and more moons. So I have now grounded my answer in something more \nbelievable. I have not hallucinated or made up an answer. Oh, by the way, I didn't leak personal information about how long ago it's been since I was obsessed with space. All right, so what does this have to do with large language models? Well, how would a large language model have answered this question? So let's say that I have a user asking this question about moons. A large language model would confidently say, OK, I have been trained and from what I know in my parameters during my training, the answer is Jupiter. The answer is wrong. But, you know, we don't know. The large language model is very confident in what it answered. Now, what happens when you add this retrieval augmented part here? What does that mean? That means that now, instead of just relying on what the LLM knows, we are adding a content store. This could be open like the internet. This can be closed like some collection of documents, collection of policies, whatever. The point, though, now is that the LLM first goes and talks to the content store and says, “Hey, can you retrieve for me information that is relevant to what the user's query was?” And now, with this retrieval-augmented answer, it's not Jupiter anymore. We know that it is Saturn. What does this look like? Well, first user prompts the LLM with their question. They say, this is what my question was. And originally, if we're just talking to a generative model, the generative model says, “Oh, okay, I know the response. Here it is. Here's my response.”   But now in the RAG framework, the generative model actually has an instruction that says, \"No, no, no.\" \"First, go and retrieve relevant content.\" \"Combine that with the user's question and only then generate the answer.\" So the prompt now has three parts: the instruction to pay attention to, the retrieved content, together with the user's question. Now give a response. And in fact, now you can give evidence for why your response was what it was.   So now hopefully you can see, how does RAG help the two LLM challenges that I had mentioned before?   So first of all, I'll start with the out of date part. Now, instead of having to retrain your model, if new information comes up, like, hey, we found some more moons-- now to Jupiter again, maybe it'll be Saturn again in the future. All you have to do is you augment your data store with new information, update information. So now the next time that a user comes and asks the question, we're ready. We just go ahead and retrieve the most up to date information. The second problem, source. Well, the large language model is now being instructed to pay attention to primary source data before giving its response. And in fact, now being able to give evidence. This makes it less likely to hallucinate or to leak data because it is less likely to rely only on information that it learned during training. It also allows us to get the model to have a behavior that can be very positive, which is knowing when to say, “I don't know.” If the user's question cannot be reliably answered based on your data store, the model should say, \"I don't know,\" instead of making up something that is believable and may mislead the user. This can have a negative effect as well though, because if the retriever is not sufficiently good to give the large language model the best, most high-quality grounding information, then maybe the user's query that is answerable doesn't get an answer. So this is actually why lots of folks, including many of us here at IBM, are working the problem on both sides. We are both working to improve the retriever to give the large language model the best quality data on which to ground its response, and also the generative part so that the LLM can give the richest, best response finally to the user when it generates the answer. Thank you for learning more about RAG and like and subscribe to the channel. Thank you."
+              ],
+              "latency_seconds": 5.253
+            }
+          },
+          "comparison": {
+            "winner": "10000",
+            "scores": {
+              "1000": {
+                "faithfulness": 4,
+                "coverage": 3,
+                "directness": 4
+              },
+              "10000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              }
+            },
+            "reason": "Answer 10000 provides a more comprehensive explanation of how RAG addresses the 'source' problem, including the explicit mention of reducing hallucination and enabling the model to 'know when to say, 'I don't know',' which are directly supported by the excerpts.",
+            "evidence": "This makes it less likely to hallucinate or to leak data... It also allows us to get the model to have a behavior that can be very positive, which is knowing when to say, “I don't know.”"
+          }
+        },
+        {
+          "question": "What are the two main advantages of RAG?",
+          "answers": {
+            "1000": {
+              "answer": "The two main advantages of RAG are that it helps large language models (LLMs) be more accurate and more up to date.\n\nSpecifically, RAG addresses the \"out of date\" problem by allowing new information to be added to a data store, so the LLM can retrieve the most up-to-date information without needing to be retrained. It also helps with the \"source\" problem, enabling the LLM to give evidence for why its response was what it was.",
+              "source_chunks": [
+                "a negative effect as well though, because if the retriever is not sufficiently good to give the large language model the best, most high-quality grounding information, then maybe the user's query that is answerable doesn't get an answer. So this is actually why lots of folks, including many of us here at IBM, are working the problem on both sides. We are both working to improve the retriever to give the large language model the best quality data on which to ground its response, and also the generative part so that the LLM can give the richest, best response finally to the user when it generates the answer. Thank you for learning more about RAG and like and subscribe to the channel. Thank you.",
+                "\"No, no, no.\" \"First, go and retrieve relevant content.\" \"Combine that with the user's question and only then generate the answer.\" So the prompt now has three parts: the instruction to pay attention to, the retrieved content, together with the user's question. Now give a response. And in fact, now you can give evidence for why your response was what it was.   So now hopefully you can see, how does RAG help the two LLM challenges that I had mentioned before?   So first of all, I'll start with the out of date part. Now, instead of having to retrain your model, if new information comes up, like, hey, we found some more moons-- now to Jupiter again, maybe it'll be Saturn again in the future. All you have to do is you augment your data store with new information, update information. So now the next time that a user comes and asks the question, we're ready. We just go ahead and retrieve the most up to date information. The second problem, source. Well, the large language model is now being",
+                "Large language models. They are everywhere. They get some things amazingly right and other things very interestingly wrong. My name is Marina Danilevsky. I am a Senior Research Scientist here at IBM Research. And I want to tell you about a framework to help large language models be more accurate and more up to date: Retrieval-Augmented Generation, or RAG. Let's just talk about the \"Generation\" part for a minute. So forget the \"Retrieval-Augmented\". So the generation, this refers to large language models, or LLMs, that generate text in response to a user query, referred to as a prompt. These models can have some undesirable behavior. I want to tell you an anecdote to illustrate this. So my kids, they recently asked me this question: \"In our solar system, what planet has the most moons?\" And my response was, “Oh, that's really great that you're asking this question. I loved space when I was your age.” Of course, that was like 30 years ago. But I know this! I read an article and the",
+                "are adding a content store. This could be open like the internet. This can be closed like some collection of documents, collection of policies, whatever. The point, though, now is that the LLM first goes and talks to the content store and says, “Hey, can you retrieve for me information that is relevant to what the user's query was?” And now, with this retrieval-augmented answer, it's not Jupiter anymore. We know that it is Saturn. What does this look like? Well, first user prompts the LLM with their question. They say, this is what my question was. And originally, if we're just talking to a generative model, the generative model says, “Oh, okay, I know the response. Here it is. Here's my response.”   But now in the RAG framework, the generative model actually has an instruction that says, \"No, no, no.\" \"First, go and retrieve relevant content.\" \"Combine that with the user's question and only then generate the answer.\" So the prompt now has three parts: the instruction to pay attention"
+              ],
+              "latency_seconds": 5.937
+            },
+            "10000": {
+              "answer": "The two main advantages of Retrieval-Augmented Generation (RAG) are:\n\n1.  **Addressing out-of-date information:** RAG allows models to use the most up-to-date information by augmenting the data store with new or updated information, rather than requiring the model to be retrained.\n2.  **Providing sources and reducing hallucination:** RAG instructs the large language model to pay attention to primary source data before giving its response, enabling it to provide evidence for its answer. This makes the model less likely to hallucinate or leak data by relying solely on information learned during training.",
+              "source_chunks": [
+                "Large language models. They are everywhere. They get some things amazingly right and other things very interestingly wrong. My name is Marina Danilevsky. I am a Senior Research Scientist here at IBM Research. And I want to tell you about a framework to help large language models be more accurate and more up to date: Retrieval-Augmented Generation, or RAG. Let's just talk about the \"Generation\" part for a minute. So forget the \"Retrieval-Augmented\". So the generation, this refers to large language models, or LLMs, that generate text in response to a user query, referred to as a prompt. These models can have some undesirable behavior. I want to tell you an anecdote to illustrate this. So my kids, they recently asked me this question: \"In our solar system, what planet has the most moons?\" And my response was, “Oh, that's really great that you're asking this question. I loved space when I was your age.” Of course, that was like 30 years ago. But I know this! I read an article and the article said that it was Jupiter and 88 moons. So that's the answer. Now, actually, there's a couple of things wrong with my answer. First of all, I have no source to support what I'm saying. So even though I confidently said “I read an article, I know the answer!”, I'm not sourcing it. I'm giving the answer off the top of my head. And also, I actually haven't kept up with this for awhile, and my answer is out of date. So we have two problems here. One is no source. And the second problem is that I am out of date.   And these, in fact, are two behaviors that are often observed as problematic when interacting with large language models. They’re LLM challenges. Now, what would have happened if I'd taken a beat and first gone and looked up the answer on a reputable source like NASA? Well, then I would have been able to say, “Ah, okay! So the answer is Saturn with 146 moons.” And in fact, this keeps changing because scientists keep on discovering more and more moons. So I have now grounded my answer in something more \nbelievable. I have not hallucinated or made up an answer. Oh, by the way, I didn't leak personal information about how long ago it's been since I was obsessed with space. All right, so what does this have to do with large language models? Well, how would a large language model have answered this question? So let's say that I have a user asking this question about moons. A large language model would confidently say, OK, I have been trained and from what I know in my parameters during my training, the answer is Jupiter. The answer is wrong. But, you know, we don't know. The large language model is very confident in what it answered. Now, what happens when you add this retrieval augmented part here? What does that mean? That means that now, instead of just relying on what the LLM knows, we are adding a content store. This could be open like the internet. This can be closed like some collection of documents, collection of policies, whatever. The point, though, now is that the LLM first goes and talks to the content store and says, “Hey, can you retrieve for me information that is relevant to what the user's query was?” And now, with this retrieval-augmented answer, it's not Jupiter anymore. We know that it is Saturn. What does this look like? Well, first user prompts the LLM with their question. They say, this is what my question was. And originally, if we're just talking to a generative model, the generative model says, “Oh, okay, I know the response. Here it is. Here's my response.”   But now in the RAG framework, the generative model actually has an instruction that says, \"No, no, no.\" \"First, go and retrieve relevant content.\" \"Combine that with the user's question and only then generate the answer.\" So the prompt now has three parts: the instruction to pay attention to, the retrieved content, together with the user's question. Now give a response. And in fact, now you can give evidence for why your response was what it was.   So now hopefully you can see, how does RAG help the two LLM challenges that I had mentioned before?   So first of all, I'll start with the out of date part. Now, instead of having to retrain your model, if new information comes up, like, hey, we found some more moons-- now to Jupiter again, maybe it'll be Saturn again in the future. All you have to do is you augment your data store with new information, update information. So now the next time that a user comes and asks the question, we're ready. We just go ahead and retrieve the most up to date information. The second problem, source. Well, the large language model is now being instructed to pay attention to primary source data before giving its response. And in fact, now being able to give evidence. This makes it less likely to hallucinate or to leak data because it is less likely to rely only on information that it learned during training. It also allows us to get the model to have a behavior that can be very positive, which is knowing when to say, “I don't know.” If the user's question cannot be reliably answered based on your data store, the model should say, \"I don't know,\" instead of making up something that is believable and may mislead the user. This can have a negative effect as well though, because if the retriever is not sufficiently good to give the large language model the best, most high-quality grounding information, then maybe the user's query that is answerable doesn't get an answer. So this is actually why lots of folks, including many of us here at IBM, are working the problem on both sides. We are both working to improve the retriever to give the large language model the best quality data on which to ground its response, and also the generative part so that the LLM can give the richest, best response finally to the user when it generates the answer. Thank you for learning more about RAG and like and subscribe to the channel. Thank you."
+              ],
+              "latency_seconds": 4.591
+            }
+          },
+          "comparison": {
+            "winner": "1000",
+            "scores": {
+              "1000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              },
+              "10000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              }
+            },
+            "reason": "Both answers are excellent and well-supported, but Answer 1000 is slightly more direct by stating the main advantages as 'more accurate and more up to date,' which is how the transcript introduces RAG's benefits.",
+            "evidence": "I want to tell you about a framework to help large language models be more accurate and more up to date: Retrieval-Augmented Generation, or RAG."
+          }
+        },
+        {
+          "question": "How does the retriever work with the language model?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-2.5-flash\nPlease retry in 52.465452093s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 5\n}\n, retry_delay {\n  seconds: 52\n}\n]"
+        },
+        {
+          "question": "What does the video use as an example to show how RAG changes an answer?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-2.5-flash\nPlease retry in 48.196388307s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 5\n}\n, retry_delay {\n  seconds: 48\n}\n]"
+        },
+        {
+          "question": "What happens when the retriever returns poor information?",
+          "answers": {
+            "1000": {
+              "answer": "If the retriever is not sufficiently good to give the large language model the best, most high-quality grounding information, then the user's query that is answerable may not get an answer.",
+              "source_chunks": [
+                "a negative effect as well though, because if the retriever is not sufficiently good to give the large language model the best, most high-quality grounding information, then maybe the user's query that is answerable doesn't get an answer. So this is actually why lots of folks, including many of us here at IBM, are working the problem on both sides. We are both working to improve the retriever to give the large language model the best quality data on which to ground its response, and also the generative part so that the LLM can give the richest, best response finally to the user when it generates the answer. Thank you for learning more about RAG and like and subscribe to the channel. Thank you.",
+                "next time that a user comes and asks the question, we're ready. We just go ahead and retrieve the most up to date information. The second problem, source. Well, the large language model is now being instructed to pay attention to primary source data before giving its response. And in fact, now being able to give evidence. This makes it less likely to hallucinate or to leak data because it is less likely to rely only on information that it learned during training. It also allows us to get the model to have a behavior that can be very positive, which is knowing when to say, “I don't know.” If the user's question cannot be reliably answered based on your data store, the model should say, \"I don't know,\" instead of making up something that is believable and may mislead the user. This can have a negative effect as well though, because if the retriever is not sufficiently good to give the large language model the best, most high-quality grounding information, then maybe the user's query",
+                "\"No, no, no.\" \"First, go and retrieve relevant content.\" \"Combine that with the user's question and only then generate the answer.\" So the prompt now has three parts: the instruction to pay attention to, the retrieved content, together with the user's question. Now give a response. And in fact, now you can give evidence for why your response was what it was.   So now hopefully you can see, how does RAG help the two LLM challenges that I had mentioned before?   So first of all, I'll start with the out of date part. Now, instead of having to retrain your model, if new information comes up, like, hey, we found some more moons-- now to Jupiter again, maybe it'll be Saturn again in the future. All you have to do is you augment your data store with new information, update information. So now the next time that a user comes and asks the question, we're ready. We just go ahead and retrieve the most up to date information. The second problem, source. Well, the large language model is now being",
+                "are adding a content store. This could be open like the internet. This can be closed like some collection of documents, collection of policies, whatever. The point, though, now is that the LLM first goes and talks to the content store and says, “Hey, can you retrieve for me information that is relevant to what the user's query was?” And now, with this retrieval-augmented answer, it's not Jupiter anymore. We know that it is Saturn. What does this look like? Well, first user prompts the LLM with their question. They say, this is what my question was. And originally, if we're just talking to a generative model, the generative model says, “Oh, okay, I know the response. Here it is. Here's my response.”   But now in the RAG framework, the generative model actually has an instruction that says, \"No, no, no.\" \"First, go and retrieve relevant content.\" \"Combine that with the user's question and only then generate the answer.\" So the prompt now has three parts: the instruction to pay attention"
+              ],
+              "latency_seconds": 6.839
+            },
+            "10000": {
+              "answer": "If the retriever is not sufficiently good to give the large language model the best, most high-quality grounding information, then a user's query that is answerable might not receive an answer.",
+              "source_chunks": [
+                "Large language models. They are everywhere. They get some things amazingly right and other things very interestingly wrong. My name is Marina Danilevsky. I am a Senior Research Scientist here at IBM Research. And I want to tell you about a framework to help large language models be more accurate and more up to date: Retrieval-Augmented Generation, or RAG. Let's just talk about the \"Generation\" part for a minute. So forget the \"Retrieval-Augmented\". So the generation, this refers to large language models, or LLMs, that generate text in response to a user query, referred to as a prompt. These models can have some undesirable behavior. I want to tell you an anecdote to illustrate this. So my kids, they recently asked me this question: \"In our solar system, what planet has the most moons?\" And my response was, “Oh, that's really great that you're asking this question. I loved space when I was your age.” Of course, that was like 30 years ago. But I know this! I read an article and the article said that it was Jupiter and 88 moons. So that's the answer. Now, actually, there's a couple of things wrong with my answer. First of all, I have no source to support what I'm saying. So even though I confidently said “I read an article, I know the answer!”, I'm not sourcing it. I'm giving the answer off the top of my head. And also, I actually haven't kept up with this for awhile, and my answer is out of date. So we have two problems here. One is no source. And the second problem is that I am out of date.   And these, in fact, are two behaviors that are often observed as problematic when interacting with large language models. They’re LLM challenges. Now, what would have happened if I'd taken a beat and first gone and looked up the answer on a reputable source like NASA? Well, then I would have been able to say, “Ah, okay! So the answer is Saturn with 146 moons.” And in fact, this keeps changing because scientists keep on discovering more and more moons. So I have now grounded my answer in something more \nbelievable. I have not hallucinated or made up an answer. Oh, by the way, I didn't leak personal information about how long ago it's been since I was obsessed with space. All right, so what does this have to do with large language models? Well, how would a large language model have answered this question? So let's say that I have a user asking this question about moons. A large language model would confidently say, OK, I have been trained and from what I know in my parameters during my training, the answer is Jupiter. The answer is wrong. But, you know, we don't know. The large language model is very confident in what it answered. Now, what happens when you add this retrieval augmented part here? What does that mean? That means that now, instead of just relying on what the LLM knows, we are adding a content store. This could be open like the internet. This can be closed like some collection of documents, collection of policies, whatever. The point, though, now is that the LLM first goes and talks to the content store and says, “Hey, can you retrieve for me information that is relevant to what the user's query was?” And now, with this retrieval-augmented answer, it's not Jupiter anymore. We know that it is Saturn. What does this look like? Well, first user prompts the LLM with their question. They say, this is what my question was. And originally, if we're just talking to a generative model, the generative model says, “Oh, okay, I know the response. Here it is. Here's my response.”   But now in the RAG framework, the generative model actually has an instruction that says, \"No, no, no.\" \"First, go and retrieve relevant content.\" \"Combine that with the user's question and only then generate the answer.\" So the prompt now has three parts: the instruction to pay attention to, the retrieved content, together with the user's question. Now give a response. And in fact, now you can give evidence for why your response was what it was.   So now hopefully you can see, how does RAG help the two LLM challenges that I had mentioned before?   So first of all, I'll start with the out of date part. Now, instead of having to retrain your model, if new information comes up, like, hey, we found some more moons-- now to Jupiter again, maybe it'll be Saturn again in the future. All you have to do is you augment your data store with new information, update information. So now the next time that a user comes and asks the question, we're ready. We just go ahead and retrieve the most up to date information. The second problem, source. Well, the large language model is now being instructed to pay attention to primary source data before giving its response. And in fact, now being able to give evidence. This makes it less likely to hallucinate or to leak data because it is less likely to rely only on information that it learned during training. It also allows us to get the model to have a behavior that can be very positive, which is knowing when to say, “I don't know.” If the user's question cannot be reliably answered based on your data store, the model should say, \"I don't know,\" instead of making up something that is believable and may mislead the user. This can have a negative effect as well though, because if the retriever is not sufficiently good to give the large language model the best, most high-quality grounding information, then maybe the user's query that is answerable doesn't get an answer. So this is actually why lots of folks, including many of us here at IBM, are working the problem on both sides. We are both working to improve the retriever to give the large language model the best quality data on which to ground its response, and also the generative part so that the LLM can give the richest, best response finally to the user when it generates the answer. Thank you for learning more about RAG and like and subscribe to the channel. Thank you."
+              ],
+              "latency_seconds": 3.596
+            }
+          },
+          "comparison": {
+            "winner": "tie",
+            "scores": {
+              "1000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              },
+              "10000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              }
+            },
+            "reason": "Both answers are nearly identical and accurately state the consequence of a poor retriever as described in the transcript.",
+            "evidence": "if the retriever is not sufficiently good to give the large language model the best, most high-quality grounding information, then maybe the user's query that is answerable doesn't get an answer."
+          }
+        }
+      ]
+    },
+    {
+      "title": "How Large Language Models Work (IBM Technology)",
+      "video_id": "5sLYAQS9sWQ",
+      "transcript_characters": 0,
+      "variants": {},
+      "questions": [],
+      "error": "RuntimeError: No transcript available for video '5sLYAQS9sWQ'. Captions may be disabled or unavailable."
+    },
+    {
+      "title": "What are Convolutional Neural Networks (CNNs)? (IBM Technology)",
+      "video_id": "QzY57FaENXg",
+      "transcript_characters": 4940,
+      "variants": {
+        "1000": {
+          "chunk_count": 6,
+          "chunk_size_characters": 1000,
+          "chunk_overlap_characters": 200
+        },
+        "10000": {
+          "chunk_count": 1,
+          "chunk_size_characters": 10000,
+          "chunk_overlap_characters": 1000
+        }
+      },
+      "questions": [
+        {
+          "question": "What does a convolutional layer do?",
+          "answers": {
+            "1000": {
+              "answer": "A convolutional layer, as part of a CNN, contains filters that perform pattern recognition. These filters are typically three by three blocks that can be specified to look for a particular pattern, such as a right angle, within an equivalent three by three block of pixels in an image.\n\nAs the CNN goes deeper, the filters in subsequent layers become more abstract and can perform more complex tasks. For example, filters in a second layer might perform basic object recognition, such as recognizing the presence of a window, door, or roof. Even deeper, filters can determine more abstract concepts like whether an image shows a house, an apartment, or a skyscraper. The numeric arrays from these filters are combined in a process called pooling to gain a better understanding of the content within a series of pixels.",
+              "source_chunks": [
+                "by three filter here. And perhaps this one looks for a shape like this. And we could add a third filter here, and perhaps this looks for a different kind of right angle shape. If we take the numeric arrays from all of these filters and combine them together in a process called pooling, then we have a much better understanding of what is contained within this series of pixels. Now that's just the first layer of the CNN. And as we go deeper into the neural network, the filters become more abstract all they can do more. So the second layer of filters perhaps can perform tasks like basic object recognition. So we can have filters here that might be able to recognize the presence of a window or the presence of a door or the presence of a roof. And as we go deeper into the sea and into the next leg, well, maybe these filters can perform even more abstract tasks, like being able to determine whether we're looking at a house or we're looking at an apartment or whether we're looking at a",
+                "the IBM garage at IBM. Now let's take a look at how CNN works at a high level. Well, let's break it down. CNN convolutional neural network Well, let's start with the artificial neural network part. This is a standard network that consists of multiple layers that are interconnected, and each layer receives some input. Transforms that input to something else and passes an output to the next layer, that's how neural networks work and see an end is a particular part of the neural network or a section of layers that say it's these three layers here and within these layers, we have something called filters. And it's the filters that perform the pattern recognition that CNN is so good at. So let's apply this to our house example now. If this house were an actual image, it would be a series of pixels, just like any image. And if we zoom in on a particular part of this house, let's say we zoom in around here, then we would get, well, the window. And what we're saying here is that a window",
+                "next leg, well, maybe these filters can perform even more abstract tasks, like being able to determine whether we're looking at a house or we're looking at an apartment or whether we're looking at a skyscraper. So you can see the application of these filters increases as we go through the network and can perform more and more tasks. And that's a very high level basic overview of what CNN is. It has a ton of business applications. Think of OCR, for example, for understanding handwritten documents. Think of visual recognition and facial detection and visual search. Think of medical imagery and looking at that and determining what is being shown in an imaging scan. And even think of the fact that we can apply a CNN to perform object identification for. Body drawn houses, if you have any questions, please drop us a line below, and if you want to see more videos like this in the future, please like and subscribe. Thanks for watching.",
+                "pixels, just like any image. And if we zoom in on a particular part of this house, let's say we zoom in around here, then we would get, well, the window. And what we're saying here is that a window consists of some perfectly straight lines. Almost perfectly straight lines. But, you know, a window doesn't need to look like that window could equally look like this, and we would still say it was a window. The cool thing about CNN is that using filters. CNN could also say that these two objects represent the same thing. The way they do that, then, is through the application of these filters. So let's take a look at how that works. Now, a filter is basically just a three by three block. And within that block, we can specify a pattern to look for. So we could say, let's look for. Pattern like this, a right angle in our image. So what we do is we take this filter and it's a three by three block here. We will analyze the equivalent three by three block up here as well. So. We'll look at first"
+              ],
+              "latency_seconds": 19.869
+            },
+            "10000": {
+              "answer": "A convolutional layer, or the layers within a convolutional neural network (CNN), applies filters to an image to perform pattern recognition.\n\nSpecifically:\n*   A filter is typically a three-by-three block that specifies a pattern to look for (e.g., a right angle).\n*   The filter slides across equivalent three-by-three blocks of pixels in the image, scoring how closely each block matches the filter's shape.\n*   This process generates an array of numbers indicating how closely the image matches the filter.\n*   Multiple filters can be used, each looking for a different shape.\n*   The numeric arrays from these filters are then combined through a process called pooling to gain a better understanding of what is contained within the series of pixels.\n\nAs the CNN goes deeper, filters in subsequent layers become more abstract, performing tasks like basic object recognition (e.g., recognizing a window, door, or roof) and eventually determining larger objects (e.g., a house, apartment, or skyscraper).",
+              "source_chunks": [
+                "OK, pop quiz. What am I drawing? I'm going to make three predictions here. Firstly. You think at your house, you'd be right? Secondly, that that just came pretty easily to you, it was effortless. And thirdly, you're thinking that I'm not much of an artist and you'd be right on all counts there. But how can we look at this set of geometric shapes and think, Oh, how? If you live in a house, I bet it looks nothing like this. Well, that ability to perform object identification that comes so easily to us does not come so easily to a computer, but that is where we can apply something called convolutional neural networks to the problem. Now, a convolutional neural network or a. See, and and. Is a area of deep learning that specializes in pattern recognition. My name is Martin Keane, and I work in the IBM garage at IBM. Now let's take a look at how CNN works at a high level. Well, let's break it down. CNN convolutional neural network Well, let's start with the artificial neural network part. This is a standard network that consists of multiple layers that are interconnected, and each layer receives some input. Transforms that input to something else and passes an output to the next layer, that's how neural networks work and see an end is a particular part of the neural network or a section of layers that say it's these three layers here and within these layers, we have something called filters. And it's the filters that perform the pattern recognition that CNN is so good at. So let's apply this to our house example now. If this house were an actual image, it would be a series of pixels, just like any image. And if we zoom in on a particular part of this house, let's say we zoom in around here, then we would get, well, the window. And what we're saying here is that a window consists of some perfectly straight lines. Almost perfectly straight lines. But, you know, a window doesn't need to look like that window could equally look like this, and we would still say it was a window. The cool thing about CNN is that using filters. CNN could also say that these two objects represent the same thing. The way they do that, then, is through the application of these filters. So let's take a look at how that works. Now, a filter is basically just a three by three block. And within that block, we can specify a pattern to look for. So we could say, let's look for. Pattern like this, a right angle in our image. So what we do is we take this filter and it's a three by three block here. We will analyze the equivalent three by three block up here as well. So. We'll look at first of all, these first. Group of three by three pixels, and we will see how close are they to the filter shape? And we'll get that numeric score, then we will move across one, come to the right and look at the next three by three block of pixels and score how close they are to the filter shape. And we will continue to slide over or vote over all of these pixel layers until we have not every three by three block. Now, that's just for one filter. But what that will give us is an array of numbers that say how closely and the image matches filter, but we can add more filters so we could add another three by three filter here. And perhaps this one looks for a shape like this. And we could add a third filter here, and perhaps this looks for a different kind of right angle shape. If we take the numeric arrays from all of these filters and combine them together in a process called pooling, then we have a much better understanding of what is contained within this series of pixels. Now that's just the first layer of the CNN. And as we go deeper into the neural network, the filters become more abstract all they can do more. So the second layer of filters perhaps can perform tasks like basic object recognition. So we can have filters here that might be able to recognize the presence of a window or the presence of a door or the presence of a roof. And as we go deeper into the sea and into the next leg, well, maybe these filters can perform even more abstract tasks, like being able to determine whether we're looking at a house or we're looking at an apartment or whether we're looking at a skyscraper. So you can see the application of these filters increases as we go through the network and can perform more and more tasks. And that's a very high level basic overview of what CNN is. It has a ton of business applications. Think of OCR, for example, for understanding handwritten documents. Think of visual recognition and facial detection and visual search. Think of medical imagery and looking at that and determining what is being shown in an imaging scan. And even think of the fact that we can apply a CNN to perform object identification for. Body drawn houses, if you have any questions, please drop us a line below, and if you want to see more videos like this in the future, please like and subscribe. Thanks for watching."
+              ],
+              "latency_seconds": 6.477
+            }
+          },
+          "comparison": {
+            "winner": "10000",
+            "scores": {
+              "1000": {
+                "faithfulness": 4,
+                "coverage": 3,
+                "directness": 4
+              },
+              "10000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              }
+            },
+            "reason": "Answer 10000 provides a more detailed and step-by-step explanation of how the filters operate within a convolutional layer, including the sliding and scoring process.",
+            "evidence": "We will continue to slide over or vote over all of these pixel layers until we have not every three by three block. Now, that's just for one filter. But what that will give us is an array of numbers that say how closely and the image matches filter"
+          }
+        },
+        {
+          "question": "What is pooling and why is it used?",
+          "answers": {
+            "1000": {
+              "answer": "Pooling is a process where the numeric arrays from all filters are combined together. It is used to achieve a much better understanding of what is contained within a series of pixels.",
+              "source_chunks": [
+                "by three filter here. And perhaps this one looks for a shape like this. And we could add a third filter here, and perhaps this looks for a different kind of right angle shape. If we take the numeric arrays from all of these filters and combine them together in a process called pooling, then we have a much better understanding of what is contained within this series of pixels. Now that's just the first layer of the CNN. And as we go deeper into the neural network, the filters become more abstract all they can do more. So the second layer of filters perhaps can perform tasks like basic object recognition. So we can have filters here that might be able to recognize the presence of a window or the presence of a door or the presence of a roof. And as we go deeper into the sea and into the next leg, well, maybe these filters can perform even more abstract tasks, like being able to determine whether we're looking at a house or we're looking at an apartment or whether we're looking at a",
+                "a right angle in our image. So what we do is we take this filter and it's a three by three block here. We will analyze the equivalent three by three block up here as well. So. We'll look at first of all, these first. Group of three by three pixels, and we will see how close are they to the filter shape? And we'll get that numeric score, then we will move across one, come to the right and look at the next three by three block of pixels and score how close they are to the filter shape. And we will continue to slide over or vote over all of these pixel layers until we have not every three by three block. Now, that's just for one filter. But what that will give us is an array of numbers that say how closely and the image matches filter, but we can add more filters so we could add another three by three filter here. And perhaps this one looks for a shape like this. And we could add a third filter here, and perhaps this looks for a different kind of right angle shape. If we take the numeric",
+                "pixels, just like any image. And if we zoom in on a particular part of this house, let's say we zoom in around here, then we would get, well, the window. And what we're saying here is that a window consists of some perfectly straight lines. Almost perfectly straight lines. But, you know, a window doesn't need to look like that window could equally look like this, and we would still say it was a window. The cool thing about CNN is that using filters. CNN could also say that these two objects represent the same thing. The way they do that, then, is through the application of these filters. So let's take a look at how that works. Now, a filter is basically just a three by three block. And within that block, we can specify a pattern to look for. So we could say, let's look for. Pattern like this, a right angle in our image. So what we do is we take this filter and it's a three by three block here. We will analyze the equivalent three by three block up here as well. So. We'll look at first",
+                "the IBM garage at IBM. Now let's take a look at how CNN works at a high level. Well, let's break it down. CNN convolutional neural network Well, let's start with the artificial neural network part. This is a standard network that consists of multiple layers that are interconnected, and each layer receives some input. Transforms that input to something else and passes an output to the next layer, that's how neural networks work and see an end is a particular part of the neural network or a section of layers that say it's these three layers here and within these layers, we have something called filters. And it's the filters that perform the pattern recognition that CNN is so good at. So let's apply this to our house example now. If this house were an actual image, it would be a series of pixels, just like any image. And if we zoom in on a particular part of this house, let's say we zoom in around here, then we would get, well, the window. And what we're saying here is that a window"
+              ],
+              "latency_seconds": 2.946
+            },
+            "10000": {
+              "answer": "Pooling is a process where the numeric arrays from all filters are combined together. It is used to gain a much better understanding of what is contained within a series of pixels.",
+              "source_chunks": [
+                "OK, pop quiz. What am I drawing? I'm going to make three predictions here. Firstly. You think at your house, you'd be right? Secondly, that that just came pretty easily to you, it was effortless. And thirdly, you're thinking that I'm not much of an artist and you'd be right on all counts there. But how can we look at this set of geometric shapes and think, Oh, how? If you live in a house, I bet it looks nothing like this. Well, that ability to perform object identification that comes so easily to us does not come so easily to a computer, but that is where we can apply something called convolutional neural networks to the problem. Now, a convolutional neural network or a. See, and and. Is a area of deep learning that specializes in pattern recognition. My name is Martin Keane, and I work in the IBM garage at IBM. Now let's take a look at how CNN works at a high level. Well, let's break it down. CNN convolutional neural network Well, let's start with the artificial neural network part. This is a standard network that consists of multiple layers that are interconnected, and each layer receives some input. Transforms that input to something else and passes an output to the next layer, that's how neural networks work and see an end is a particular part of the neural network or a section of layers that say it's these three layers here and within these layers, we have something called filters. And it's the filters that perform the pattern recognition that CNN is so good at. So let's apply this to our house example now. If this house were an actual image, it would be a series of pixels, just like any image. And if we zoom in on a particular part of this house, let's say we zoom in around here, then we would get, well, the window. And what we're saying here is that a window consists of some perfectly straight lines. Almost perfectly straight lines. But, you know, a window doesn't need to look like that window could equally look like this, and we would still say it was a window. The cool thing about CNN is that using filters. CNN could also say that these two objects represent the same thing. The way they do that, then, is through the application of these filters. So let's take a look at how that works. Now, a filter is basically just a three by three block. And within that block, we can specify a pattern to look for. So we could say, let's look for. Pattern like this, a right angle in our image. So what we do is we take this filter and it's a three by three block here. We will analyze the equivalent three by three block up here as well. So. We'll look at first of all, these first. Group of three by three pixels, and we will see how close are they to the filter shape? And we'll get that numeric score, then we will move across one, come to the right and look at the next three by three block of pixels and score how close they are to the filter shape. And we will continue to slide over or vote over all of these pixel layers until we have not every three by three block. Now, that's just for one filter. But what that will give us is an array of numbers that say how closely and the image matches filter, but we can add more filters so we could add another three by three filter here. And perhaps this one looks for a shape like this. And we could add a third filter here, and perhaps this looks for a different kind of right angle shape. If we take the numeric arrays from all of these filters and combine them together in a process called pooling, then we have a much better understanding of what is contained within this series of pixels. Now that's just the first layer of the CNN. And as we go deeper into the neural network, the filters become more abstract all they can do more. So the second layer of filters perhaps can perform tasks like basic object recognition. So we can have filters here that might be able to recognize the presence of a window or the presence of a door or the presence of a roof. And as we go deeper into the sea and into the next leg, well, maybe these filters can perform even more abstract tasks, like being able to determine whether we're looking at a house or we're looking at an apartment or whether we're looking at a skyscraper. So you can see the application of these filters increases as we go through the network and can perform more and more tasks. And that's a very high level basic overview of what CNN is. It has a ton of business applications. Think of OCR, for example, for understanding handwritten documents. Think of visual recognition and facial detection and visual search. Think of medical imagery and looking at that and determining what is being shown in an imaging scan. And even think of the fact that we can apply a CNN to perform object identification for. Body drawn houses, if you have any questions, please drop us a line below, and if you want to see more videos like this in the future, please like and subscribe. Thanks for watching."
+              ],
+              "latency_seconds": 3.474
+            }
+          },
+          "comparison": {
+            "winner": "tie",
+            "scores": {
+              "1000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              },
+              "10000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              }
+            },
+            "reason": "Both answers are identical in content and perfectly supported by the provided excerpts.",
+            "evidence": "If we take the numeric arrays from all of these filters and combine them together in a process called pooling, then we have a much better understanding of what is contained within this series of pixels."
+          }
+        },
+        {
+          "question": "Why are CNNs well suited to image tasks?",
+          "answers": {
+            "1000": {
+              "answer": "CNNs are well-suited to image tasks because they use filters to perform pattern recognition. These filters, which are typically three by three blocks, can be specified to look for particular patterns, such as a right angle, within an image's pixels. By combining the numeric arrays from these filters through a process called pooling, CNNs gain a better understanding of what is contained within a series of pixels.\n\nAs the network goes deeper, the filters become more abstract, allowing them to perform tasks like basic object recognition (e.g., recognizing a window, door, or roof) and even more abstract tasks such as determining if an image shows a house, an apartment, or a skyscraper. CNNs can also identify that different visual representations of an object (like two different window shapes) represent the same thing. This capability makes them effective for applications like visual recognition, facial detection, visual search, medical imagery analysis, and object identification.",
+              "source_chunks": [
+                "next leg, well, maybe these filters can perform even more abstract tasks, like being able to determine whether we're looking at a house or we're looking at an apartment or whether we're looking at a skyscraper. So you can see the application of these filters increases as we go through the network and can perform more and more tasks. And that's a very high level basic overview of what CNN is. It has a ton of business applications. Think of OCR, for example, for understanding handwritten documents. Think of visual recognition and facial detection and visual search. Think of medical imagery and looking at that and determining what is being shown in an imaging scan. And even think of the fact that we can apply a CNN to perform object identification for. Body drawn houses, if you have any questions, please drop us a line below, and if you want to see more videos like this in the future, please like and subscribe. Thanks for watching.",
+                "by three filter here. And perhaps this one looks for a shape like this. And we could add a third filter here, and perhaps this looks for a different kind of right angle shape. If we take the numeric arrays from all of these filters and combine them together in a process called pooling, then we have a much better understanding of what is contained within this series of pixels. Now that's just the first layer of the CNN. And as we go deeper into the neural network, the filters become more abstract all they can do more. So the second layer of filters perhaps can perform tasks like basic object recognition. So we can have filters here that might be able to recognize the presence of a window or the presence of a door or the presence of a roof. And as we go deeper into the sea and into the next leg, well, maybe these filters can perform even more abstract tasks, like being able to determine whether we're looking at a house or we're looking at an apartment or whether we're looking at a",
+                "pixels, just like any image. And if we zoom in on a particular part of this house, let's say we zoom in around here, then we would get, well, the window. And what we're saying here is that a window consists of some perfectly straight lines. Almost perfectly straight lines. But, you know, a window doesn't need to look like that window could equally look like this, and we would still say it was a window. The cool thing about CNN is that using filters. CNN could also say that these two objects represent the same thing. The way they do that, then, is through the application of these filters. So let's take a look at how that works. Now, a filter is basically just a three by three block. And within that block, we can specify a pattern to look for. So we could say, let's look for. Pattern like this, a right angle in our image. So what we do is we take this filter and it's a three by three block here. We will analyze the equivalent three by three block up here as well. So. We'll look at first",
+                "the IBM garage at IBM. Now let's take a look at how CNN works at a high level. Well, let's break it down. CNN convolutional neural network Well, let's start with the artificial neural network part. This is a standard network that consists of multiple layers that are interconnected, and each layer receives some input. Transforms that input to something else and passes an output to the next layer, that's how neural networks work and see an end is a particular part of the neural network or a section of layers that say it's these three layers here and within these layers, we have something called filters. And it's the filters that perform the pattern recognition that CNN is so good at. So let's apply this to our house example now. If this house were an actual image, it would be a series of pixels, just like any image. And if we zoom in on a particular part of this house, let's say we zoom in around here, then we would get, well, the window. And what we're saying here is that a window"
+              ],
+              "latency_seconds": 6.325
+            },
+            "10000": {
+              "answer": "CNNs are well-suited to image tasks because they are an area of deep learning that specializes in pattern recognition. They use \"filters,\" which are three by three blocks, to look for specific patterns within an image's pixels. By sliding these filters across the image and scoring how closely pixel blocks match the filter shape, CNNs can identify various patterns. Multiple filters can be used to look for different shapes, and their numeric results can be combined through a process called pooling to gain a better understanding of the image content. As the network goes deeper, these filters become more abstract, allowing them to perform basic object recognition (like identifying a window or door) and eventually more complex object identification (like determining if an image shows a house, apartment, or skyscraper). This enables computers to perform object identification, which is otherwise difficult for them.",
+              "source_chunks": [
+                "OK, pop quiz. What am I drawing? I'm going to make three predictions here. Firstly. You think at your house, you'd be right? Secondly, that that just came pretty easily to you, it was effortless. And thirdly, you're thinking that I'm not much of an artist and you'd be right on all counts there. But how can we look at this set of geometric shapes and think, Oh, how? If you live in a house, I bet it looks nothing like this. Well, that ability to perform object identification that comes so easily to us does not come so easily to a computer, but that is where we can apply something called convolutional neural networks to the problem. Now, a convolutional neural network or a. See, and and. Is a area of deep learning that specializes in pattern recognition. My name is Martin Keane, and I work in the IBM garage at IBM. Now let's take a look at how CNN works at a high level. Well, let's break it down. CNN convolutional neural network Well, let's start with the artificial neural network part. This is a standard network that consists of multiple layers that are interconnected, and each layer receives some input. Transforms that input to something else and passes an output to the next layer, that's how neural networks work and see an end is a particular part of the neural network or a section of layers that say it's these three layers here and within these layers, we have something called filters. And it's the filters that perform the pattern recognition that CNN is so good at. So let's apply this to our house example now. If this house were an actual image, it would be a series of pixels, just like any image. And if we zoom in on a particular part of this house, let's say we zoom in around here, then we would get, well, the window. And what we're saying here is that a window consists of some perfectly straight lines. Almost perfectly straight lines. But, you know, a window doesn't need to look like that window could equally look like this, and we would still say it was a window. The cool thing about CNN is that using filters. CNN could also say that these two objects represent the same thing. The way they do that, then, is through the application of these filters. So let's take a look at how that works. Now, a filter is basically just a three by three block. And within that block, we can specify a pattern to look for. So we could say, let's look for. Pattern like this, a right angle in our image. So what we do is we take this filter and it's a three by three block here. We will analyze the equivalent three by three block up here as well. So. We'll look at first of all, these first. Group of three by three pixels, and we will see how close are they to the filter shape? And we'll get that numeric score, then we will move across one, come to the right and look at the next three by three block of pixels and score how close they are to the filter shape. And we will continue to slide over or vote over all of these pixel layers until we have not every three by three block. Now, that's just for one filter. But what that will give us is an array of numbers that say how closely and the image matches filter, but we can add more filters so we could add another three by three filter here. And perhaps this one looks for a shape like this. And we could add a third filter here, and perhaps this looks for a different kind of right angle shape. If we take the numeric arrays from all of these filters and combine them together in a process called pooling, then we have a much better understanding of what is contained within this series of pixels. Now that's just the first layer of the CNN. And as we go deeper into the neural network, the filters become more abstract all they can do more. So the second layer of filters perhaps can perform tasks like basic object recognition. So we can have filters here that might be able to recognize the presence of a window or the presence of a door or the presence of a roof. And as we go deeper into the sea and into the next leg, well, maybe these filters can perform even more abstract tasks, like being able to determine whether we're looking at a house or we're looking at an apartment or whether we're looking at a skyscraper. So you can see the application of these filters increases as we go through the network and can perform more and more tasks. And that's a very high level basic overview of what CNN is. It has a ton of business applications. Think of OCR, for example, for understanding handwritten documents. Think of visual recognition and facial detection and visual search. Think of medical imagery and looking at that and determining what is being shown in an imaging scan. And even think of the fact that we can apply a CNN to perform object identification for. Body drawn houses, if you have any questions, please drop us a line below, and if you want to see more videos like this in the future, please like and subscribe. Thanks for watching."
+              ],
+              "latency_seconds": 6.976
+            }
+          },
+          "comparison": {
+            "winner": "1000",
+            "scores": {
+              "1000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              },
+              "10000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              }
+            },
+            "reason": "The 1000-character answer concisely explains the core mechanisms and capabilities, including the crucial ability to recognize different visual representations of the same object, which is a key reason for CNNs' suitability for image tasks.",
+            "evidence": "The cool thing about CNN is that using filters. CNN could also say that these two objects represent the same thing."
+          }
+        },
+        {
+          "question": "What is the role of the fully connected layer?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-2.5-flash\nPlease retry in 57.17672291s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 5\n}\n, retry_delay {\n  seconds: 57\n}\n]"
+        },
+        {
+          "question": "What are some real-world uses of CNNs mentioned in the video?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-2.5-flash\nPlease retry in 53.273385112s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 5\n}\n, retry_delay {\n  seconds: 53\n}\n]"
+        }
+      ]
+    },
+    {
+      "title": "What are Transformers (Machine Learning Model)? (IBM Technology)",
+      "video_id": "ZXiruGOCn9s",
+      "transcript_characters": 4208,
+      "variants": {
+        "1000": {
+          "chunk_count": 5,
+          "chunk_size_characters": 1000,
+          "chunk_overlap_characters": 200
+        },
+        "10000": {
+          "chunk_count": 1,
+          "chunk_size_characters": 10000,
+          "chunk_overlap_characters": 1000
+        }
+      },
+      "questions": [
+        {
+          "question": "What problem do transformers solve compared to older sequence models?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-2.5-flash\nPlease retry in 45.230379755s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 5\n}\n, retry_delay {\n  seconds: 45\n}\n]"
+        },
+        {
+          "question": "What is attention and how does it work?",
+          "answers": {
+            "1000": {
+              "answer": "The attention mechanism is a component used by transformers that provides context around items in the input sequence.\n\nIt works by allowing the transformer to identify the context that brings meaning to each word in a sequence, rather than processing data strictly in order or starting a translation based solely on word position. This mechanism enables transformers to run multiple sequences in parallel, which vastly speeds up training times. The ability of the attention mechanism to be parallelized also contributes to transformers continuously improving.",
+              "source_chunks": [
+                "them to perform better now in previous videos i've talked about other machine learning algorithms that handle sequential input like natural language for example there are recurrent neural networks or rnns what makes transformers a little bit different is they do not necessarily process data in order transformers use something called an attention mechanism and this provides context around items in the input sequence so rather than starting our translation with the word why because it's at the start of the sentence the transformer attempts to identify the context that bring meaning in each word in the sequence and it's this attention mechanism that gives transformers a huge leg up over algorithms like rnn that must run in sequence transformers run multiple sequences in parallel and this vastly speeds up training times so beyond translations what can transformers be applied to well document summaries they're another great example you can like feed in a whole article as the input sequence",
+                "speeds up training times so beyond translations what can transformers be applied to well document summaries they're another great example you can like feed in a whole article as the input sequence and then generate an output sequence that's going to really just be a couple of sentences that summarize the main points transformers can create whole new documents of their own for example like write a whole blog post and beyond just language transformers have done things like learn to play chess and perform image processing that even rivals the capabilities of convolutional neural networks look transformers are a powerful deep learning model and thanks to how the attention mechanism can be paralyzed are getting better all the time and who knows pretty soon maybe they'll even be able to pull off banana jokes that are actually funny if you have any questions please drop us a line below and if you want to see more videos like this in the future please like and subscribe thanks for watching",
+                "i mean who wouldn't cross the road to avoid getting mashed but look gpt3 is just one example of a transformer something that transforms from one sequence into another and language translation is just a great example perhaps we want to take a sentence of why did the banana cross the road and we want to take that english phrase and translate it into french well transformers consist of two parts there is an encoder and there is a decoder the encoder works on the input sequence and the decoder operates on the target output sequence now on the face of it translation seems like little more than just like a basic lookup task so convert the y here of our english sentence to the french equivalent of porcua but of course language translation doesn't really work that way things like word order in terms of phrase often mix things up and the way transformers work is through sequence to sequence learning where the transformer takes a sequence of tokens in this case words in a sentence and predicts",
+                "of phrase often mix things up and the way transformers work is through sequence to sequence learning where the transformer takes a sequence of tokens in this case words in a sentence and predicts the next word in the output sequence it does this through iterating through encoder layers so the encoder generates encodings that define which part of the input sequence are relevant to each other and then passes these encodings to the next encoder layer the decoder takes all of these encodings and uses their derived context to generate the output sequence now transformers are a form of semi supervised learning by semi sequence semi-supervised we mean that they are pre-trained in an unsupervised manner with a large unlabeled data set and then they're fine-tuned through supervised training to get them to perform better now in previous videos i've talked about other machine learning algorithms that handle sequential input like natural language for example there are recurrent neural networks or"
+              ],
+              "latency_seconds": 4.935
+            },
+            "10000": {
+              "answer": "The attention mechanism is something transformers use to provide context around items in the input sequence. Instead of processing data in order, like starting a translation with the first word in a sentence, the transformer uses the attention mechanism to identify the context that brings meaning to each word in the sequence. This allows transformers to run multiple sequences in parallel, which vastly speeds up training times.",
+              "source_chunks": [
+                "no it's it it's not those transformers but but they can do some pretty cool things let me show you so why did the banana cross the road because it was sick of being mashed yeah i'm not sure that i quite get that one and that's because it was created by a computer i literally asked it to tell me a joke and this is what it came up with specifically i used a gpt-3 or a generative pre-trained transformer model the three here means that this is the third generation gpt-3 is an auto-regressive language model that produces text that looks like it was written by a human gpt3 can write poetry craft emails and evidently come up with its own jokes off you go now while our banana joke isn't exactly funny it does fit the typical pattern of a joke with a setup and a punch line and sort of kind of makes sense i mean who wouldn't cross the road to avoid getting mashed but look gpt3 is just one example of a transformer something that transforms from one sequence into another and language translation is just a great example perhaps we want to take a sentence of why did the banana cross the road and we want to take that english phrase and translate it into french well transformers consist of two parts there is an encoder and there is a decoder the encoder works on the input sequence and the decoder operates on the target output sequence now on the face of it translation seems like little more than just like a basic lookup task so convert the y here of our english sentence to the french equivalent of porcua but of course language translation doesn't really work that way things like word order in terms of phrase often mix things up and the way transformers work is through sequence to sequence learning where the transformer takes a sequence of tokens in this case words in a sentence and predicts the next word in the output sequence it does this through iterating through encoder layers so the encoder generates encodings that define which part of the input sequence are relevant to each other and then passes these encodings to the next encoder layer the decoder takes all of these encodings and uses their derived context to generate the output sequence now transformers are a form of semi supervised learning by semi sequence semi-supervised we mean that they are pre-trained in an unsupervised manner with a large unlabeled data set and then they're fine-tuned through supervised training to get them to perform better now in previous videos i've talked about other machine learning algorithms that handle sequential input like natural language for example there are recurrent neural networks or rnns what makes transformers a little bit different is they do not necessarily process data in order transformers use something called an attention mechanism and this provides context around items in the input sequence so rather than starting our translation with the word why because it's at the start of the sentence the transformer attempts to identify the context that bring meaning in each word in the sequence and it's this attention mechanism that gives transformers a huge leg up over algorithms like rnn that must run in sequence transformers run multiple sequences in parallel and this vastly speeds up training times so beyond translations what can transformers be applied to well document summaries they're another great example you can like feed in a whole article as the input sequence and then generate an output sequence that's going to really just be a couple of sentences that summarize the main points transformers can create whole new documents of their own for example like write a whole blog post and beyond just language transformers have done things like learn to play chess and perform image processing that even rivals the capabilities of convolutional neural networks look transformers are a powerful deep learning model and thanks to how the attention mechanism can be paralyzed are getting better all the time and who knows pretty soon maybe they'll even be able to pull off banana jokes that are actually funny if you have any questions please drop us a line below and if you want to see more videos like this in the future please like and subscribe thanks for watching"
+              ],
+              "latency_seconds": 3.62
+            }
+          },
+          "comparison": {
+            "winner": "1000",
+            "scores": {
+              "1000": {
+                "faithfulness": 4,
+                "coverage": 4,
+                "directness": 4
+              },
+              "10000": {
+                "faithfulness": 4,
+                "coverage": 3,
+                "directness": 4
+              }
+            },
+            "reason": "The 1000-character answer provides a slightly more comprehensive explanation of how the attention mechanism works, including its contribution to transformers continuously improving, which is supported by the text.",
+            "evidence": "thanks to how the attention mechanism can be paralyzed are getting better all the time"
+          }
+        },
+        {
+          "question": "What are the main parts of a transformer?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h3m23.89255992s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54203\n}\n]"
+        },
+        {
+          "question": "How are transformers used in language models?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h3m19.511177889s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54199\n}\n]"
+        },
+        {
+          "question": "Can transformers be used for tasks other than text?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h3m15.368883186s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54195\n}\n]"
+        }
+      ]
+    },
+    {
+      "title": "Retrieval Augmented Generation (RAG) Explained in 8 Minutes!",
+      "video_id": "HREbdmOSQ18",
+      "transcript_characters": 9488,
+      "variants": {
+        "1000": {
+          "chunk_count": 12,
+          "chunk_size_characters": 1000,
+          "chunk_overlap_characters": 200
+        },
+        "10000": {
+          "chunk_count": 1,
+          "chunk_size_characters": 10000,
+          "chunk_overlap_characters": 1000
+        }
+      },
+      "questions": [
+        {
+          "question": "What is chunking and why does it matter in RAG?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h3m6.182910261s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54186\n}\n]"
+        },
+        {
+          "question": "What are embeddings and how are they used here?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h3m2.813269856s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54182\n}\n]"
+        },
+        {
+          "question": "What is a vector database used for?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m59.417984468s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54179\n}\n]"
+        },
+        {
+          "question": "What steps happen between a user's question and the final answer?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m55.974692785s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54175\n}\n]"
+        },
+        {
+          "question": "Summarize the video in five points.",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m52.678386454s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54172\n}\n]"
+        }
+      ]
+    },
+    {
+      "title": "The Coronavirus Explained & What You Should Do (Kurzgesagt)",
+      "video_id": "BtN-goy9VOY",
+      "transcript_characters": 7959,
+      "variants": {
+        "1000": {
+          "chunk_count": 10,
+          "chunk_size_characters": 1000,
+          "chunk_overlap_characters": 200
+        },
+        "10000": {
+          "chunk_count": 1,
+          "chunk_size_characters": 10000,
+          "chunk_overlap_characters": 1000
+        }
+      },
+      "questions": [
+        {
+          "question": "How does the virus infect the body?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m43.690672184s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54163\n}\n]"
+        },
+        {
+          "question": "What are the typical symptoms described?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m39.515922196s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54159\n}\n]"
+        },
+        {
+          "question": "How does the virus spread between people?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m35.991474218s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54155\n}\n]"
+        },
+        {
+          "question": "What precautions does the video recommend?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m32.53154255s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54152\n}\n]"
+        },
+        {
+          "question": "Who is most at risk according to the video?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m28.806570664s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54148\n}\n]"
+        }
+      ]
+    },
+    {
+      "title": "The Side Effects of Vaccines: How High is the Risk? (Kurzgesagt)",
+      "video_id": "zBkVCpbNnkU",
+      "transcript_characters": 34997,
+      "variants": {
+        "1000": {
+          "chunk_count": 44,
+          "chunk_size_characters": 1000,
+          "chunk_overlap_characters": 200
+        },
+        "10000": {
+          "chunk_count": 4,
+          "chunk_size_characters": 10000,
+          "chunk_overlap_characters": 1000
+        }
+      },
+      "questions": [
+        {
+          "question": "How do vaccines work?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m9.572663478s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54129\n}\n]"
+        },
+        {
+          "question": "What side effects does the video mention?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m6.099858703s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54126\n}\n]"
+        },
+        {
+          "question": "How rare are serious side effects?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h2m0.837658347s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54120\n}\n]"
+        },
+        {
+          "question": "How does the video compare vaccine risks with the risks of the diseases?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m56.60424311s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54116\n}\n]"
+        },
+        {
+          "question": "What does the video say about how vaccine safety is monitored?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m52.257276827s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54112\n}\n]"
+        }
+      ]
+    },
+    {
+      "title": "The Antibiotic Apocalypse Explained (Kurzgesagt)",
+      "video_id": "xZbcwi7SfZE",
+      "transcript_characters": 5695,
+      "variants": {
+        "1000": {
+          "chunk_count": 7,
+          "chunk_size_characters": 1000,
+          "chunk_overlap_characters": 200
+        },
+        "10000": {
+          "chunk_count": 1,
+          "chunk_size_characters": 10000,
+          "chunk_overlap_characters": 1000
+        }
+      },
+      "questions": [
+        {
+          "question": "What is the antibiotic apocalypse?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m43.865324186s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54103\n}\n]"
+        },
+        {
+          "question": "Why does antibiotic resistance develop?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m40.474445262s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54100\n}\n]"
+        },
+        {
+          "question": "How do bacteria become resistant?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m37.162816083s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54097\n}\n]"
+        },
+        {
+          "question": "What human activities make the problem worse?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m33.893263537s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54093\n}\n]"
+        },
+        {
+          "question": "How dangerous does the video say this could become?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m30.622105788s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54090\n}\n]"
+        }
+      ]
+    },
+    {
+      "title": "How The Immune System ACTUALLY Works: IMMUNE (Kurzgesagt)",
+      "video_id": "lXfEK8G8CUI",
+      "transcript_characters": 9352,
+      "variants": {
+        "1000": {
+          "chunk_count": 12,
+          "chunk_size_characters": 1000,
+          "chunk_overlap_characters": 200
+        },
+        "10000": {
+          "chunk_count": 1,
+          "chunk_size_characters": 10000,
+          "chunk_overlap_characters": 1000
+        }
+      },
+      "questions": [
+        {
+          "question": "What are the main parts of the immune system?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m22.555845092s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54082\n}\n]"
+        },
+        {
+          "question": "How does the immune system fight a bacterial infection?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m19.340852578s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54079\n}\n]"
+        },
+        {
+          "question": "What role do antibodies play?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m16.041790435s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54076\n}\n]"
+        },
+        {
+          "question": "What does the video say about \"boosting\" your immune system?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m12.603624857s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54072\n}\n]"
+        },
+        {
+          "question": "How does the immune system deal with cancer cells?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h1m9.111058272s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54069\n}\n]"
+        }
+      ]
+    },
+    {
+      "title": "Viruses: Molecular Hijackers (Professor Dave Explains)",
+      "video_id": "X31g5TB-MRo",
+      "transcript_characters": 10161,
+      "variants": {
+        "1000": {
+          "chunk_count": 13,
+          "chunk_size_characters": 1000,
+          "chunk_overlap_characters": 200
+        },
+        "10000": {
+          "chunk_count": 2,
+          "chunk_size_characters": 10000,
+          "chunk_overlap_characters": 1000
+        }
+      },
+      "questions": [
+        {
+          "question": "How does a virus take over a cell?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h58.199432822s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54058\n}\n]"
+        },
+        {
+          "question": "What is the basic structure of a virus?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h54.66166218s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54054\n}\n]"
+        },
+        {
+          "question": "How do viruses differ from bacteria?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h51.094994032s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54051\n}\n]"
+        },
+        {
+          "question": "What are the stages of a viral life cycle?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h47.537602721s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54047\n}\n]"
+        },
+        {
+          "question": "Are viruses considered alive according to the video?",
+          "answers": {},
+          "error": "ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-2.5-flash\nPlease retry in 15h44.058966084s. [links {\n  description: \"Learn more about Gemini API quotas\"\n  url: \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n}\n, violations {\n  quota_metric: \"generativelanguage.googleapis.com/generate_content_free_tier_requests\"\n  quota_id: \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\"\n  quota_dimensions {\n    key: \"model\"\n    value: \"gemini-2.5-flash\"\n  }\n  quota_dimensions {\n    key: \"location\"\n    value: \"global\"\n  }\n  quota_value: 20\n}\n, retry_delay {\n  seconds: 54044\n}\n]"
+        }
+      ]
+    }
+  ]
+}

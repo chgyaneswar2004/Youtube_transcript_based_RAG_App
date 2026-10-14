@@ -1,0 +1,51 @@
+# dependencies
+node_modules/
+
+# python virtual environments
+venv/
+.venv/
+env/
+
+# python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# env files (important for secrets)
+.env
+.env.*
+!.env.example
+
+# logs
+logs/
+*.log
+npm-debug.log*
+
+# build / temp
+dist/
+build/
+tmp/
+temp/
+.next/
+
+# uploads (if any)
+uploads/
+*.csv
+*.xlsx
+
+# database files (if local)
+*.sqlite
+*.db
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# cache
+.cache/
+
+# misc
+*.pid
+*.seed
