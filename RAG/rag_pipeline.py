@@ -26,6 +26,7 @@ from typing import Iterator
 #   - FetchedTranscript is iterable, each item has .text
 #   - Errors moved to youtube_transcript_api._errors
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import GenericProxyConfig
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
@@ -138,27 +139,38 @@ Answer:"""
     # ── Step 1a – Document ingestion ─────────────────────────────────────────
 
     def _fetch_transcript(self, video_id: str) -> str:
-        ytt = YouTubeTranscriptApi()
+        http_proxy = os.getenv("YOUTUBE_TRANSCRIPT_HTTP_PROXY")
+        https_proxy = os.getenv("YOUTUBE_TRANSCRIPT_HTTPS_PROXY")
+        proxy_config = (
+            GenericProxyConfig(http_url=http_proxy, https_url=https_proxy)
+            if http_proxy or https_proxy
+            else None
+        )
+        ytt = YouTubeTranscriptApi(proxy_config=proxy_config)
+        last_error: Exception | None = None
 
         # Try English first, then Hindi, then any available language
         for lang in [["en"], ["hi"], ["en-IN"]]:
             try:
                 fetched = ytt.fetch(video_id, languages=lang)
                 return " ".join(s.text for s in fetched)
-            except Exception:
+            except Exception as exc:
+                last_error = exc
                 continue
 
         # Last resort: fetch whatever language is available without specifying
         try:
             fetched = ytt.fetch(video_id)
             return " ".join(s.text for s in fetched)
-        except Exception:
-            pass
+        except Exception as exc:
+            last_error = exc
 
-        raise RuntimeError(
-            f"No transcript available for video '{video_id}'. "
-            "Captions may be disabled or unavailable."
-    )
+        if last_error is not None:
+            raise RuntimeError(
+                f"Transcript fetch failed for video '{video_id}'. "
+                f"Last error: {type(last_error).__name__}: {last_error}"
+            ) from last_error
+        raise RuntimeError(f"No transcript available for video '{video_id}'.")
 
     # ── Step 1b – Text splitting ──────────────────────────────────────────────
 

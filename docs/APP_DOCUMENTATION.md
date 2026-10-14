@@ -287,9 +287,10 @@ TypeScript uses strict checking, no emit, bundler module resolution, and the `@/
 | --- | --- | --- | --- |
 | `GOOGLE_API_KEY` | Backend API | yes for actual ingestion/answers | Read when `rag_pipeline.py` is imported; set it before starting the backend process. |
 | `ANOTHER_API_KEY` | `RAG/evaluation.py` | yes for evaluation | Read from the process environment only; the evaluation script maps it internally to the Google client key name and never loads `.env`. |
+| `YOUTUBE_TRANSCRIPT_HTTP_PROXY`, `YOUTUBE_TRANSCRIPT_HTTPS_PROXY` | Backend transcript fetch | no | Optional proxy URLs used by `youtube-transcript-api`; configure only with a trusted provider if YouTube blocks the hosting IP. |
 | `CURL_CA_BUNDLE`, `REQUESTS_CA_BUNDLE` | Backend process | no | Both are unconditionally removed by `main.py` and `rag_pipeline.py` to avoid invalid local certificate paths. This changes TLS configuration behavior for the backend process. |
 
-The frontend currently hardcodes `http://127.0.0.1:8000` in its fetch calls. `NEXT_PUBLIC_API_URL` and YouTube/OpenAI/Pinecone variables mentioned by the old `First/README.md` are not read by the current implementation. There is no `.env.example` in the source tree. Do not put a Google key in a `NEXT_PUBLIC_*` variable or frontend source.
+The frontend reads `NEXT_PUBLIC_API_URL` for backend requests and falls back to `http://127.0.0.1:8000` for local development. Set the public API URL in the frontend build environment and keep Google credentials backend-only. Optional `YOUTUBE_TRANSCRIPT_HTTP_PROXY` and `YOUTUBE_TRANSCRIPT_HTTPS_PROXY` configure proxy routes for transcript requests when the host IP is blocked.
 
 ## 11. Error handling and troubleshooting
 
