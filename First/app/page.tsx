@@ -8,6 +8,8 @@ import { ChatInput } from '@/components/chat-input';
 import { VideoInput } from '@/components/video-input';
 import { Trash2 } from 'lucide-react';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000';
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -130,7 +132,7 @@ export default function Page() {
     setVideoError(null);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/youtube/info?video_id=${videoId}`
+        `${API_BASE_URL}/youtube/info?video_id=${videoId}`
       );
 
       if (!response.ok) {
@@ -185,7 +187,7 @@ export default function Page() {
     setIsLoadingResponse(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/ask', {
+      const response = await fetch(`${API_BASE_URL}/ask`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ video_id: currentChat.video_id, query: message }),
