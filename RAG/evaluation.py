@@ -28,7 +28,7 @@ from rag_pipeline import YouTubeRAGPipeline  # noqa: E402
 from youtube_transcript_api import YouTubeTranscriptApi  # noqa: E402
 
 # The evaluation model can move independently of the production app's default.
-EVAL_MODEL = os.getenv("RAG_EVAL_MODEL", "models/gemini-2.5-flash")
+EVAL_MODEL = os.getenv("RAG_EVAL_MODEL", "models/gemini-3.8-flash")
 YouTubeRAGPipeline.CHAT_MODEL = EVAL_MODEL
 
 TEST_SET = ROOT / "youtube_test_videos.md"

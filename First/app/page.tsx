@@ -18,6 +18,7 @@ interface Message {
 
 export interface ChatState {
   id: string;
+  manuallyCreated?: boolean;
   video_id:     string | null;
   videoTitle:   string | null;
   channel_name: string | null;
@@ -29,15 +30,25 @@ export default function Page() {
   const [chatStates, setChatStates] = useState<Record<string, ChatState>>(() => {
     if (typeof window === 'undefined') return {};
     try {
-      const saved = localStorage.getItem('yt-rag-chats');
-      return saved ? JSON.parse(saved) : {};
+      const saved = sessionStorage.getItem('yt-rag-chats');
+      if (!saved) return {};
+
+      const chats = JSON.parse(saved) as Record<string, ChatState>;
+      // Older startup code could create duplicate untouched chats in React Strict Mode.
+      const untouchedLegacyChats = Object.values(chats)
+        .filter((chat) => !chat.manuallyCreated && !chat.video_id && !chat.videoTitle && chat.messages.length === 0)
+        .sort((a, b) => Number(b.id) - Number(a.id));
+      for (const duplicate of untouchedLegacyChats.slice(1)) {
+        delete chats[duplicate.id];
+      }
+      return chats;
     } catch {
       return {};
     }
   });
   const [currentChatId, setCurrentChatId] = useState<string | null>(() => {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('yt-rag-current-chat') || null;
+  return sessionStorage.getItem('yt-rag-current-chat') || null;
 });
   const [isLoadingVideo, setIsLoadingVideo]         = useState(false);
   const [isLoadingResponse, setIsLoadingResponse]   = useState(false);
@@ -45,38 +56,56 @@ export default function Page() {
   const [mounted, setMounted] = useState(false);
   const messagesEndRef     = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const bootstrapStartedRef = useRef(false);
 
   useEffect(() => {
   setMounted(true);
 }, []);
-  // ── Persist chatStates to localStorage on every change ───────────────────
+  // ── Persist chats for this browser tab session ────────────────────────────
   useEffect(() => {
-    localStorage.setItem('yt-rag-chats', JSON.stringify(chatStates));
+    sessionStorage.setItem('yt-rag-chats', JSON.stringify(chatStates));
   }, [chatStates]);
+
+  // Remove chat data saved by older builds, which used persistent localStorage.
+  useEffect(() => {
+    localStorage.removeItem('yt-rag-chats');
+    localStorage.removeItem('yt-rag-current-chat');
+  }, []);
 
   // ── Bootstrap: select most recent chat or create a new one ───────────────
   useEffect(() => {
-    if (!currentChatId) {
-      const existingIds = Object.keys(chatStates);
-      if (existingIds.length > 0) {
-        // Resume the most recent chat
-        const latest = existingIds.sort((a, b) => Number(b) - Number(a))[0];
-        setCurrentChatId(latest);
-      } else {
-        // First ever launch — create a blank chat
-        const id = Date.now().toString();
-        setChatStates((prev) => ({
-          ...prev,
-          [id]: { id, video_id: null, videoTitle: null, channel_name: null, thumbnail: null, messages: [] },
-        }));
-        setCurrentChatId(id);
-      }
+    if (bootstrapStartedRef.current) return;
+    bootstrapStartedRef.current = true;
+
+    if (currentChatId && chatStates[currentChatId]) return;
+
+    const existingIds = Object.keys(chatStates);
+    if (existingIds.length > 0) {
+      // Resume the most recent chat when the saved active ID is missing or stale.
+      const latest = existingIds.sort((a, b) => Number(b) - Number(a))[0];
+      setCurrentChatId(latest);
+      return;
     }
-  }, [currentChatId]);
+
+    // First launch in this tab session: create exactly one initial chat.
+    const id = Date.now().toString();
+    setChatStates({
+      [id]: {
+        id,
+        manuallyCreated: false,
+        video_id: null,
+        videoTitle: null,
+        channel_name: null,
+        thumbnail: null,
+        messages: [],
+      },
+    });
+    setCurrentChatId(id);
+  }, []);
 
   useEffect(() => {
   if (currentChatId) {
-    localStorage.setItem('yt-rag-current-chat', currentChatId);
+    sessionStorage.setItem('yt-rag-current-chat', currentChatId);
   }
   }, [currentChatId]);
 
@@ -96,12 +125,14 @@ export default function Page() {
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleNewChat = () => {
-    const id = Date.now().toString();
+    let id = Date.now();
+    while (chatStates[id.toString()]) id += 1;
+    const chatId = id.toString();
     setChatStates((prev) => ({
       ...prev,
-      [id]: { id, video_id: null, videoTitle: null, channel_name: null, thumbnail: null, messages: [] },
+      [chatId]: { id: chatId, manuallyCreated: true, video_id: null, videoTitle: null, channel_name: null, thumbnail: null, messages: [] },
     }));
-    setCurrentChatId(id);
+    setCurrentChatId(chatId);
     setVideoError(null);
   };
 
@@ -185,6 +216,30 @@ export default function Page() {
     }));
 
     setIsLoadingResponse(true);
+    const assistantMessageId = (Date.now() + 1).toString();
+    let assistantMessageAdded = false;
+
+    const appendAssistantText = async (text: string) => {
+      if (!text) return;
+      for (const char of text) {
+        setChatStates((prev) => {
+          const chat = prev[currentChatId];
+          if (!chat) return prev;
+          const messages = [...chat.messages];
+          const assistantIndex = messages.findIndex((item) => item.id === assistantMessageId);
+          if (assistantIndex >= 0) {
+            messages[assistantIndex] = {
+              ...messages[assistantIndex],
+              content: messages[assistantIndex].content + char,
+            };
+          } else {
+            messages.push({ id: assistantMessageId, role: 'assistant', content: char });
+          }
+          return { ...prev, [currentChatId]: { ...chat, messages } };
+        });
+        await new Promise<void>((resolve) => setTimeout(resolve, 15));
+      }
+    };
 
     try {
       const response = await fetch(`${API_BASE_URL}/ask`, {
@@ -193,62 +248,80 @@ export default function Page() {
         body:    JSON.stringify({ video_id: currentChat.video_id, query: message }),
       });
 
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      if (!response.ok) {
+        let detail = `Server error: ${response.status}`;
+        try {
+          const payload = await response.json();
+          if (payload && typeof payload.detail === 'string') detail = payload.detail;
+        } catch {
+          // Keep the status message if the server did not return JSON.
+        }
+        throw new Error(detail);
+      }
 
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No response body');
 
-      const assistantMessage: Message = { id: (Date.now() + 1).toString(), role: 'assistant', content: '' };
+      const assistantMessage: Message = { id: assistantMessageId, role: 'assistant', content: '' };
       setChatStates((prev) => ({
         ...prev,
         [currentChatId]: { ...prev[currentChatId], messages: [...prev[currentChatId].messages, assistantMessage] },
       }));
+      assistantMessageAdded = true;
 
       const decoder = new TextDecoder();
+      let buffer = '';
+      let streamError: string | null = null;
+
+      const processEvent = async (frame: string) => {
+        const data = frame
+          .split('\n')
+          .filter((line) => line.startsWith('data:'))
+          .map((line) => line.slice(5).replace(/^ /, ''))
+          .join('\n');
+        if (!data) return;
+
+        try {
+          const event = JSON.parse(data);
+          if (event.error) {
+            streamError = typeof event.message === 'string'
+              ? event.message
+              : 'The backend could not generate an answer. Check its logs for details.';
+            return;
+          }
+          if (typeof event.chunk === 'string') await appendAssistantText(event.chunk);
+        } catch (error) {
+          if (error instanceof SyntaxError) {
+            console.warn('Skipping malformed AI stream event:', error);
+          } else {
+            throw error;
+          }
+        }
+      };
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done }).replace(/\r\n/g, '\n');
 
-        const lines = decoder.decode(value).split('\n');
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const jsonStr = line.slice(6).trim();
-          if (!jsonStr) continue;
-
-          try {
-            const data = JSON.parse(jsonStr);
-            if (data.done) break;
-
-            for (const char of data.chunk as string) {
-              await new Promise((r) => setTimeout(r, 15));
-              setChatStates((prev) => {
-                const chat     = prev[currentChatId];
-                const messages = [...chat.messages];
-                const last     = messages[messages.length - 1];
-                if (last?.role === 'assistant') {
-                  messages[messages.length - 1] = { ...last, content: last.content + char };
-                }
-                return { ...prev, [currentChatId]: { ...chat, messages } };
-              });
-            }
-          } catch {
-            // skip malformed SSE lines
-          }
+        let frameEnd = buffer.indexOf('\n\n');
+        while (frameEnd !== -1) {
+          await processEvent(buffer.slice(0, frameEnd));
+          buffer = buffer.slice(frameEnd + 2);
+          frameEnd = buffer.indexOf('\n\n');
         }
+        if (done) break;
       }
+
+      if (buffer.trim()) await processEvent(buffer);
+      if (streamError) throw new Error(streamError);
     } catch (error) {
       console.error('Error sending message:', error);
-      const errMsg: Message = {
-        id:      (Date.now() + 2).toString(),
-        role:    'assistant',
-        content: 'Sorry, I encountered an error processing your question. Please try again.',
-      };
-      setChatStates((prev) => ({
-        ...prev,
-        [currentChatId]: { ...prev[currentChatId], messages: [...prev[currentChatId].messages, errMsg] },
-      }));
+      const errText = error instanceof Error ? error.message : 'An unexpected error occurred.';
+      if (assistantMessageAdded) {
+        await appendAssistantText(`\n\n${errText}`);
+      } else {
+        await appendAssistantText(errText);
+      }
     } finally {
       setIsLoadingResponse(false);
     }

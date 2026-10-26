@@ -6,7 +6,7 @@
 
 The app lets a user load a YouTube video, then ask questions grounded in its available captions. The browser extracts the video's 11-character ID and requests metadata from the backend. The backend fetches a transcript, splits it into overlapping text chunks, embeds those chunks with Google's embedding model, stores vectors in a per-process FAISS index, and prepares a LangChain retrieval-and-generation chain. On each question, the retriever selects up to four relevant chunks and Gemini generates a response. The response is sent as Server-Sent Events (SSE) and progressively displayed in the chat.
 
-The browser persists chat sessions and the selected session in that browser's `localStorage`. Video indexes and backend pipelines live only in Python process memory; they are not durable and are lost when the server restarts.
+The browser stores chat sessions and the selected session in tab-scoped `sessionStorage`. Multiple chats remain available in that tab and survive a page refresh, then are cleared when the tab's browsing session ends. Video indexes and backend pipelines live only in Python process memory; they are not durable and are lost when the server restarts.
 
 ## 2. Repository map
 
@@ -54,19 +54,19 @@ Browser (Next.js :3000)
   │     ├─ YouTube oEmbed for title/channel (best effort)
   │     └─ captions → chunks → Google embeddings → in-memory FAISS → chain
   └─ POST http://127.0.0.1:8000/ask {video_id, query}
-        └─ retrieve top 4 transcript chunks → Gemini 2.5 Flash → SSE events
+        └─ retrieve top 4 transcript chunks → Gemini 3.5 Flash-Lite → SSE events
 ```
 
-The frontend directly calls the fixed loopback backend address in `First/app/page.tsx`; there is no Next.js API proxy in this repository. Run the backend on the same machine as the browser, bound to port 8000. The FastAPI CORS middleware currently allows every origin, method, and header. The UI is client-rendered (`'use client'`) and starts with a mount guard to avoid rendering the persisted state before browser APIs are available.
+The frontend directly calls the backend URL from `NEXT_PUBLIC_API_URL`; when unset, it falls back to `http://127.0.0.1:8000` for local development. There is no Next.js API proxy in this repository. For deployment, set the frontend variable to the public backend origin at build time. The FastAPI CORS middleware currently allows every origin, method, and header. The UI is client-rendered (`'use client'`) and starts with a mount guard to avoid rendering the persisted state before browser APIs are available.
 
 ### Question lifecycle
 
-1. `VideoInput` trims its input and accepts supported YouTube URL forms or a bare ID.
+1. `VideoInput` trims its input and extracts only the 11-character video ID from supported YouTube URL forms or a bare ID. Playlist parameters such as `list` and `index` are ignored.
 2. `handleLoadVideo` requests `/youtube/info`. On success, the current chat stores video ID, title, channel, and thumbnail. A failed request is shown above the input.
 3. `GET /youtube/info` validates the ID. It gets title and author name from YouTube oEmbed, falling back to “Unknown” metadata if that request fails. It constructs and ingests a `YouTubeRAGPipeline` if that video is not already cached in this Python process.
 4. The user submits a non-empty question. Enter sends; Shift+Enter inserts a newline. The UI appends the user message and posts `{video_id, query}` to `/ask`.
-5. `/ask` looks up the already-loaded pipeline and streams `data: {JSON}\n\n` events. The UI reads the response body, parses `data:` lines, and appends each chunk to a new assistant message. The UI also delays each character by 15 ms to create a typing effect.
-6. The prompt instructs Gemini to answer only from retrieved transcript context and to say it does not know when the context is insufficient.
+5. `/ask` looks up the already-loaded pipeline and streams `data: {JSON}\n\n` events. The UI buffers partial network reads until a complete SSE event is available, then appends the assistant response one character every 15 ms for a typing effect. A generation failure is logged by the backend and returned as an in-stream error event for display in the chat.
+6. The prompt keeps video-content questions grounded in the transcript and avoids unsolicited external background. It uses general knowledge only when the user clearly asks to go beyond the transcript or directly requests a deliverable the video does not provide, such as C++ code for transcript pseudocode. Such additions must be labeled as beyond the transcript and state important assumptions. Math uses `$...$` inline or `$$...$$` for display equations.
 
 ## 4. Frontend behavior
 
@@ -83,7 +83,7 @@ The frontend directly calls the fixed loopback backend address in `First/app/pag
 | `thumbnail` | YouTube thumbnail URL, or `null`. |
 | `messages` | Ordered `{id, role, content}` user/assistant messages. |
 
-The complete chat map is serialized to `localStorage` key `yt-rag-chats`; the selected ID is stored under `yt-rag-current-chat`. On startup, if the active ID is absent, the page chooses the numerically latest chat ID or creates a blank chat. These values are local to one browser profile and do not sync to the backend or another device. The `theme` preference is stored separately by the sidebar.
+The complete chat map is serialized to `sessionStorage` key `yt-rag-chats`; the selected ID is stored under `yt-rag-current-chat`. On a fresh tab session the page creates one initial chat. A bootstrap guard prevents React Strict Mode from creating that chat twice; clicking **New Chat** creates further chats. These values persist across refreshes in the same tab but do not sync to another tab, the backend, or another device. The `theme` preference remains stored separately in `localStorage` by the sidebar. On startup, the app removes old chat keys from `localStorage` and collapses duplicate untouched starter chats left by older builds.
 
 ### Session controls
 
@@ -102,13 +102,15 @@ The complete chat map is serialized to `localStorage` key `yt-rag-chats`; the se
 - `youtu.be/VIDEO_ID`
 - `youtube.com/embed/VIDEO_ID`
 - `youtube.com/shorts/VIDEO_ID`
+- `youtube.com/live/VIDEO_ID`
+- Playlist watch links such as `youtube.com/watch?v=VIDEO_ID&list=PLAYLIST_ID&index=2` (only `v` is used)
 - A bare 11-character ID using letters, digits, `_`, or `-`.
 
 It does local format extraction only. Existence, caption availability, and metadata are checked by the backend. The input is cleared after a successful backend response and kept after a failure. Pressing Enter triggers loading. Invalid input uses a browser alert.
 
 ### Chat and message display
 
-`ChatInput` disallows empty/whitespace-only submissions and disables itself during a response. Its textarea grows up to 120 px. `ChatMessage` renders message text using `react-markdown`; assistant messages include a clipboard copy button. A loading indicator is shown while the request is in progress. The page only auto-scrolls when the message container was already within 150 px of the bottom.
+`ChatInput` disallows empty/whitespace-only submissions and disables itself during a response. Its textarea grows up to 120 px. `ChatMessage` renders Markdown and LaTeX math using `react-markdown`, `remark-math`, and KaTeX via `rehype-katex`; inline `$...$` and display `$$...$$` formulas are supported. Assistant messages include a clipboard copy button. A loading indicator is shown while the request is in progress. The page only auto-scrolls when the message container was already within 150 px of the bottom.
 
 ### Theme and styling
 
@@ -145,7 +147,7 @@ The thumbnail is constructed from the ID. Title/channel use `https://www.youtube
 
 ### `POST /ask`
 
-Streams an answer for a previously loaded video.
+Streams an answer for a previously loaded video. The frontend parses complete SSE event frames across arbitrary network read boundaries and displays HTTP and in-stream errors instead of silently dropping them.
 
 **Request body**
 
@@ -167,7 +169,7 @@ data: {"chunk":"","done":true}
 
 ```
 
-Each event's `data:` payload is JSON. Normal events have a `chunk` string. The final event has `done: true`. If generation raises after streaming starts, the server emits a chunk with `error: true` containing an error string, then emits the done event. Because headers have already been sent, that generation failure is represented in-band rather than as a new HTTP status.
+The server first sends an SSE comment to establish the connection, then emits JSON data events. Normal events have a `chunk` string. The final event has `done: true`. Backend logs record when generation starts, first-token latency, total duration, and provider exceptions. If generation raises after streaming starts, the server emits `{"error":true,"message":"AI response generation failed. Check the backend logs for details."}`, then emits the done event. Because headers have already been sent, that generation failure is represented in-band rather than as a new HTTP status.
 
 **Failures before stream start:** `400` for empty query; `404` if that video is not loaded in this process; FastAPI `422` for invalid/missing request fields.
 
@@ -180,17 +182,19 @@ FastAPI's default docs should be available at `http://127.0.0.1:8000/docs` while
 Implementation: `RAG/rag_pipeline.py`.
 
 1. **Transcript retrieval:** `YouTubeTranscriptApi.fetch` tries languages in this order: English (`en`), Hindi (`hi`), English India (`en-IN`), then any available language. It joins caption segment text with spaces. If every attempt fails, it raises a runtime error that the API maps to 422.
-2. **Chunking:** `RecursiveCharacterTextSplitter` splits the joined transcript into chunks of 10,000 characters with 1,000 characters overlap in the normal app. The overlap preserves context across boundaries. `YouTubeRAGPipeline` also accepts chunk size, overlap, temperature, and prompt settings; defaults preserve the app's current configuration.
+2. **Chunking:** `RecursiveCharacterTextSplitter` splits the joined transcript into chunks of 1,000 characters with 200 characters overlap in the normal app. The overlap preserves context across boundaries, while the smaller chunks reduce the amount of text sent for each answer. The retriever returns the top four chunks (up to about 4,000 characters total). `YouTubeRAGPipeline` also accepts chunk size, overlap, temperature, and prompt settings; Gemini 3 models omit temperature because the API does not accept that sampling parameter.
 3. **Embeddings:** `GoogleGenerativeAIEmbeddings` uses `models/gemini-embedding-001`. `SafeGoogleEmbeddings` batches document embeddings in groups of 25, waits 5 seconds between batches, and retries quota-like failures up to five attempts with increasing backoff (10, 20, 30, 40 seconds between retries).
 4. **Vector index:** `FAISS.from_documents` creates a local in-memory index. The retriever uses similarity search and returns the top four chunks.
-5. **Prompt and model:** A LangChain `RunnableParallel` retrieves/formats context while passing through the question. The prompt instructs the assistant to use only transcript excerpts, avoid outside facts or guesses, answer directly, and state what cannot be determined. It feeds `models/gemini-2.5-flash` at temperature `0.2`; `StrOutputParser` yields plain text.
+5. **Prompt and model:** A LangChain `RunnableParallel` retrieves/formats context while passing through the question. Video-content answers stay grounded in the transcript without unsolicited outside background. General knowledge is used only when the user clearly asks to go beyond the transcript or directly requests a deliverable it does not contain, such as C++ code for transcript pseudocode; such additions are labeled and assumptions stated. The assistant translates pseudocode into requested programming languages when possible instead of refusing solely because the transcript omits that exact code. The model defaults to the low-latency `models/gemini-3.5-flash-lite` and can be overridden with the backend-only `GEMINI_CHAT_MODEL` setting. A small LangChain subclass allows Gemini 3 configuration without a temperature and removes the integration's default `candidate_count`; older model IDs retain the configured temperature (`0.2`). `StrOutputParser` yields plain text.
 6. **Streaming:** `YouTubeRAGPipeline.stream` yields LangChain output fragments. The FastAPI endpoint wraps each in an SSE event.
 
 The implementation does not attach source timestamps or citations to chunks, persist FAISS indexes, or expose a transcript endpoint. `query()` can return answer and source chunk strings to Python callers, but the HTTP API currently uses `stream()` and sends only generated text.
 
+**Latency spot check (October 26, 2026):** With the same minimal prompt and supplied API key, a direct Gemini 3.5 Flash-Lite request returned in 1.62 seconds, and the app's LangChain streaming call returned its first token in 1.33 seconds. Two Gemini 3.8 Flash generation probes timed out at 15 and 30 seconds. These were small local model checks, not end-to-end RAG timings; actual chat latency also depends on retrieved context, provider load, and deployment network. The backend logs the selected model and time to first AI token for production diagnosis.
+
 ## 7. Evaluation harness and current findings
 
-`RAG/evaluation.py` reads `RAG/youtube_test_videos.md`, extracts linked video IDs and their five questions, fetches each transcript once, and builds two indexes from that transcript. It compares **1,000-character chunks with 10,000-character chunks**, holding overlap constant at 200 characters so chunk size is the only retrieval configuration changed. Both use the same embedding model, `gemini-2.5-flash`, temperature `0.2`, and grounded-answer prompt. Normal app defaults remain 10,000/1,000.
+`RAG/evaluation.py` reads `RAG/youtube_test_videos.md`, extracts linked video IDs and their five questions, fetches each transcript once, and builds two indexes from that transcript. It compares **1,000-character chunks with 10,000-character chunks**, holding overlap constant at 200 characters so chunk size is the only retrieval configuration changed. Both use the same embedding model, `gemini-2.5-flash`, temperature `0.2`, and grounded-answer prompt. The app now uses the lower-latency 1,000/200 configuration based on this comparison; evaluation did not show a clear quality winner.
 
 For each question, the runner stores both answers, retrieved source chunks and latency, plus a Gemini pairwise judgment. The judge scores faithfulness, coverage, and directness from 0 to 4 and selects 1,000, 10,000, or tie. It uses temperature 0 and receives at most 12,000 characters of source excerpts per answer. These model-based preferences are estimates, not human-verified ground truth.
 
@@ -270,7 +274,7 @@ Open `http://localhost:3000`. For a production frontend, run `npm run build` the
 
 ## 9. Frontend dependencies and scripts
 
-The frontend package is named `youtube-qa-chat` version `0.1.0` and is private. Runtime dependencies include Next.js 14, React 18, Axios, Framer Motion, Lucide React, and React Markdown. (The current page uses browser `fetch`; Axios is present but not used in the inspected application code.) Development dependencies include TypeScript, Tailwind CSS, PostCSS, and type packages.
+The frontend package is named `youtube-qa-chat` version `0.1.0` and is private. Runtime dependencies include Next.js 14, React 18, Axios, Framer Motion, Lucide React, React Markdown, remark-math, rehype-katex, and KaTeX. (The current page uses browser `fetch`; Axios is present but not used in the inspected application code.) Development dependencies include TypeScript, Tailwind CSS, PostCSS, and type packages.
 
 | Command | Effect |
 | --- | --- |
@@ -296,7 +300,7 @@ The frontend reads `NEXT_PUBLIC_API_URL` for backend requests and falls back to 
 
 | Symptom | Likely cause / action |
 | --- | --- |
-| Browser reports a network/server error while loading | Start FastAPI at `127.0.0.1:8000`; check its console. The UI URL is hardcoded. |
+| Browser reports a network/server error while loading | Confirm `NEXT_PUBLIC_API_URL` points to the backend origin (not the frontend origin), rebuild the frontend after changing it, and check backend logs. For local development the fallback is `http://127.0.0.1:8000`. |
 | `422` on video load mentioning no transcript | The video has captions unavailable to the transcript library, or the service could not fetch them. Try a video with accessible captions. |
 | Google API key error on backend startup | Set `GOOGLE_API_KEY` in `RAG/.env` or the process environment before import/start. |
 | Ingestion is slow or returns quota errors | Transcript embedding may involve multiple API calls; quota-like errors are retried with backoff. Check Google API quota and logs. |
@@ -304,15 +308,15 @@ The frontend reads `NEXT_PUBLIC_API_URL` for backend requests and falls back to 
 | `404` when asking | Load the video against the same running backend process first. The pipeline cache is in memory and is not shared across workers or restarts. |
 | Title/channel show “Unknown” but video loads | YouTube oEmbed failed; metadata fallback is intentional. Transcript ingestion can still succeed. |
 | Browser cannot reach backend due to CORS | Current backend allows all origins; if deployment CORS is tightened, include the UI origin. |
-| Sidebar data is missing on another browser/device | Chats are stored only in that browser's `localStorage`. |
+| Sidebar data is missing in another tab or browser/device | Chats are stored only in the current tab's `sessionStorage`. |
 | Backend restarted and previous video must be loaded again | Expected: indexes are process-local and not persisted. |
 
-The UI's streaming decoder splits decoded byte chunks by newline without carrying an incomplete trailing line over to the next read. Most responses work, but an SSE event split across network chunks could be skipped or parsed later as malformed data. The frontend also treats all non-2xx chat responses generically and does not surface backend detail for `/ask`.
+The SSE client carries incomplete event data between reads, reports backend generation failures in the chat, and includes FastAPI `detail` text for non-2xx `/ask` responses. If generation fails after the stream begins, inspect backend logs for the underlying Gemini/provider exception; the UI intentionally shows a safe general message.
 
 ## 12. Security, privacy, and deployment boundaries
 
 - The Google API key belongs only in the backend environment.
-- Chat history and video metadata are stored unencrypted in browser `localStorage`; anyone using the same browser profile can access them.
+- Chat history and video metadata are stored unencrypted in the current tab's browser `sessionStorage`; anyone with access to that active tab can access them. The theme preference remains in `localStorage`.
 - The backend retains transcripts, vector indexes, model objects, and pipeline references in process memory for every distinct video loaded. There is no eviction policy, persistence, authentication, per-user isolation, or rate limiting.
 - CORS is unrestricted (`*`) in the current code. Tighten it to known origins before exposing the API publicly.
 - The backend API has no authentication. Do not expose it to an untrusted network as-is.

@@ -40,6 +40,16 @@ body {
   overflow-y: scroll;
 }
 
+.katex {
+  color: inherit;
+}
+
+.katex-display {
+  margin: 0.75rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;

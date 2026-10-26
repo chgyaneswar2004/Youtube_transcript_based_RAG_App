@@ -36,6 +36,20 @@ from langchain_core.runnables import RunnableParallel, RunnablePassthrough, Runn
 from langchain_core.output_parsers import StrOutputParser
 
 
+class Gemini3ChatGoogleGenerativeAI(ChatGoogleGenerativeAI):
+    """Omit legacy sampling fields that Gemini 3 rejects."""
+
+    temperature: float | None = None
+
+    def _prepare_params(self, stop, generation_config=None):
+        config = super()._prepare_params(stop, generation_config)
+        # langchain-google-genai 2.0.x adds candidate_count=1 by default even
+        # when it was not explicitly configured. Gemini 3 rejects that field.
+        config._pb.ClearField("candidate_count")
+        config._pb.ClearField("temperature")
+        return config
+
+
 # ── API key ───────────────────────────────────────────────────────────────────
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
@@ -94,15 +108,17 @@ class YouTubeRAGPipeline:
     """
 
     EMBED_MODEL = "models/gemini-embedding-001"
-    CHAT_MODEL  = "models/gemini-2.5-flash"
-    CHUNK_SIZE    = 10000
-    CHUNK_OVERLAP = 1000
+    CHAT_MODEL  = os.getenv("GEMINI_CHAT_MODEL", "models/gemini-3.5-flash-lite")
+    CHUNK_SIZE    = 1000
+    CHUNK_OVERLAP = 200
     TOP_K         = 4
 
-    DEFAULT_PROMPT = """You are a careful assistant answering questions about a YouTube video.
-Use only the transcript excerpts below as evidence. Do not add outside facts or guess.
-Answer the question directly and include the relevant details present in the excerpts.
-If the excerpts do not contain enough evidence, say what cannot be determined from the transcript.
+    DEFAULT_PROMPT = """You are a helpful assistant answering questions about a YouTube video.
+For questions about the video or its content, stay grounded in the transcript excerpts. Do not add unrelated background, outside facts, examples, or assumptions unless the user clearly asks you to go beyond the transcript. Never present outside information as if it came from the video.
+Use general knowledge when the user explicitly asks for it, or when they directly request a specific deliverable that the video does not provide (for example, asking for C++ code when the transcript only contains pseudocode). In that case, fulfill the request, clearly label the answer as an implementation or explanation beyond the transcript, and state any important assumptions.
+If the user asks what the video says and the excerpts do not answer, say that the transcript does not specify it. Do not automatically follow that with outside information; wait until the user asks for it.
+When the transcript describes an algorithm or pseudocode and the user requests code in a specific language, translate the described approach into complete, idiomatic code where possible. Do not refuse merely because the transcript does not provide code in that exact language. If essential algorithm details are missing, make reasonable assumptions and identify them before or alongside the code.
+When writing equations or mathematical symbols, use valid LaTeX: `$...$` for inline math and `$$...$$` for display equations.
 
 Transcript excerpts:
 {context}
@@ -119,7 +135,9 @@ Answer:"""
             raise ValueError("chunk_overlap must be >= 0 and less than chunk_size")
         self.chunk_size = chunk_size
         self.chunk_overlap = resolved_overlap
-        self.temperature = temperature
+        # Gemini 3 models reject legacy sampling parameters such as temperature.
+        # Keep the configured temperature for older models; omit it for Gemini 3+.
+        self.temperature = None if self.CHAT_MODEL.split("/")[-1].startswith("gemini-3") else temperature
         self.prompt_template = prompt_template
         self.transcript:  str = ""
         self.chunk_count: int = 0
@@ -130,7 +148,12 @@ Answer:"""
             model=self.EMBED_MODEL,
             google_api_key=GOOGLE_API_KEY,
         )
-        self._llm = ChatGoogleGenerativeAI(
+        chat_model_class = (
+            Gemini3ChatGoogleGenerativeAI
+            if self.temperature is None
+            else ChatGoogleGenerativeAI
+        )
+        self._llm = chat_model_class(
             model=self.CHAT_MODEL,
             temperature=self.temperature,
             google_api_key=GOOGLE_API_KEY,

@@ -19,20 +19,35 @@ export function VideoInput({
 }: VideoInputProps) {
   const [url, setUrl] = useState('');
 
-  /** Accepts full YouTube URLs or bare 11-char video IDs */
+  /** Accepts YouTube URLs (including playlist URLs) or bare 11-char video IDs. */
   const extractVideoId = (input: string): string | null => {
-    const patterns = [
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/,
-      /youtube\.com\/embed\/([A-Za-z0-9_-]{11})/,
-      /youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/,
-    ];
-    for (const pattern of patterns) {
-      const match = input.match(pattern);
-      if (match) return match[1];
+    const value = input.trim();
+    const videoIdPattern = /^[A-Za-z0-9_-]{11}$/;
+
+    // A bare ID is already the only value the backend needs.
+    if (videoIdPattern.test(value)) return value;
+
+    try {
+      const parsed = new URL(/^[a-z][a-z\d+.-]*:\/\//i.test(value) ? value : `https://${value}`);
+      const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+      let videoId: string | null = null;
+
+      if (host === 'youtu.be') {
+        videoId = parsed.pathname.split('/').filter(Boolean)[0] ?? null;
+      } else if (host === 'youtube.com' || host.endsWith('.youtube.com')) {
+        if (parsed.pathname === '/watch') {
+          // Intentionally read only `v`; playlist (`list`) and position (`index`) are ignored.
+          videoId = parsed.searchParams.get('v');
+        } else {
+          const pathMatch = parsed.pathname.match(/^\/(?:embed|shorts|live)\/([^/]+)/);
+          videoId = pathMatch?.[1] ?? null;
+        }
+      }
+
+      return videoId && videoIdPattern.test(videoId) ? videoId : null;
+    } catch {
+      return null;
     }
-    // bare ID
-    if (/^[A-Za-z0-9_-]{11}$/.test(input.trim())) return input.trim();
-    return null;
   };
 
   const handleLoad = async () => {

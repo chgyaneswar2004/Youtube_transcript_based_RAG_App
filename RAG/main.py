@@ -13,6 +13,8 @@ os.environ.pop("REQUESTS_CA_BUNDLE", None)
 
 import re
 import json
+import logging
+import time
 from dotenv import load_dotenv
 
 load_dotenv()  # loads GOOGLE_API_KEY from .env automatically
@@ -24,6 +26,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from rag_pipeline import YouTubeRAGPipeline
+
+logger = logging.getLogger(__name__)
 
 
 # ── In-memory store: video_id → pipeline ─────────────────────────────────────
@@ -112,7 +116,7 @@ def get_video_info(video_id: str = Query(..., description="YouTube video ID (11 
             pipeline_store[video_id] = pipeline
         except RuntimeError as e:
             raise HTTPException(status_code=422, detail=str(e))
-        except Exception as e:
+        except Exception:
             raise HTTPException(status_code=500, detail=f"Ingestion failed: {e}")
 
     return VideoResponse(
@@ -139,11 +143,35 @@ def ask(req: AskRequest):
         )
 
     def event_stream():
+        started_at = time.monotonic()
+        logger.info(
+            "Starting AI response stream for video %s with model %s",
+            req.video_id,
+            pipeline.CHAT_MODEL,
+        )
+        # Send bytes immediately so the client and reverse proxy can establish SSE.
+        yield ": stream-open\n\n"
+        first_token = True
         try:
             for token in pipeline.stream(req.query):
-                yield f"data: {json.dumps({'chunk': token})}\n\n"
+                if token:
+                    if first_token:
+                        logger.info(
+                            "First AI token for video %s arrived after %.1f seconds",
+                            req.video_id,
+                            time.monotonic() - started_at,
+                        )
+                        first_token = False
+                    yield f"data: {json.dumps({'chunk': token})}\n\n"
+            logger.info(
+                "AI response stream completed for video %s in %.1f seconds",
+                req.video_id,
+                time.monotonic() - started_at,
+            )
         except Exception as e:
-            yield f"data: {json.dumps({'chunk': f'[Error: {e}]', 'error': True})}\n\n"
+            logger.exception("AI response generation failed for video %s", req.video_id)
+            # Keep provider details in server logs; return a useful, safe message to the UI.
+            yield f"data: {json.dumps({'error': True, 'message': 'AI response generation failed. Check the backend logs for details.'})}\n\n"
         finally:
             yield f"data: {json.dumps({'chunk': '', 'done': True})}\n\n"
 

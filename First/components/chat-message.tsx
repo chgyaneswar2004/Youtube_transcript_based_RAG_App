@@ -4,6 +4,8 @@ import { Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 interface ChatMessageProps {
   role: 'user' | 'assistant';
@@ -63,6 +65,8 @@ export function ChatMessage({
             <>
               <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
                 <ReactMarkdown
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[rehypeKatex]}
                   components={{
                     p: ({ node, ...props }) => (
                       <p className="mb-2" {...props} />
